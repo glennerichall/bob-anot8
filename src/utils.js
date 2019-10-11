@@ -31,17 +31,18 @@ export function debounce(f) {
   let executionPending = false;
 
   return function executor() {
-    if (executing) {
-      executionPending = true;
-      return;
-    }
-    executing = true;
+      if (executing) {
+        executionPending = true;
+        return;
+      }
+      executing = true;
 
-    f();
-    executing = false;
-    if (executionPending) {
-      executionPending = false;
-      setTimeout(executor, 0);
-    }
+      f();
+      executing = false;
+      if (executionPending) {
+        executionPending = false;
+        setTimeout(executor, 0);
+      }
+    // return () => requestAnimationFrame(f);
   };
 }

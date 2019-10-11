@@ -1,17 +1,14 @@
-import { addStyleSheet, addScript } from './utils.js';
+import { addStyleSheet, addScript, debounce } from './utils.js';
 import { parseMessage } from './targets.js';
 import getPosition, { moveBy, removeOverlaps } from './positionning.js';
-// import * as SVG from './svg.min.js';
-
-let svgSrc = addScript(
-  'https://cdnjs.cloudflare.com/ajax/libs/svg.js/3.0.13/svg.min.js'
-);
+import enableDrag from './drag.js';
+import * as SVG from 'svg.js';
 
 const styles = `
 .callout {
     user-select: none;
     position: absolute;
-    width: 400px;
+    width: 100%;
 }
 .callout.bordered {
     border: 1px solid black;
@@ -30,6 +27,7 @@ const styles = `
     top: 50px;
     left: 50px;
     cursor: move;
+    max-width: 300px;
 }
 .callout::before,
 .callout .content {
@@ -79,18 +77,23 @@ const styles = `
 var elem = addStyleSheet(styles);
 elem.id = 'callout-stylesheet';
 
-// glass is used to draw callout lines
 let connectors = document.createElement('div');
 connectors.classList.add('connectors', 'resize-to-body');
 connectors.id = 'connectors';
 document.body.appendChild(connectors);
 
 let draw;
-svgSrc.onload = () => {
-  draw = SVG()
-    .addTo('#connectors')
-    .size('100%', '100%');
-};
+document.addEventListener('DOMContentLoaded', () => {
+  // is used to draw callout lines
+
+  // version 2
+  draw = SVG('connectors').size('100%', '100%');
+
+  // version 3.
+  // draw = SVG()
+  //   .addTo('#connectors')
+  //   .size('100%', '100%');
+});
 
 function createElement(node, config) {
   let callout = document.createElement('div');
@@ -121,8 +124,6 @@ function updateLine(line, a, b) {
 }
 
 function connect(a, b) {
-  if (typeof SVG === 'undefined') return;
-
   let r1 = a.getBoundingClientRect();
   let r2 = b.getBoundingClientRect();
   return draw
@@ -155,7 +156,7 @@ class Callout {
         this.content,
         this.ending
       );
-      if(!this.arc) setTimeout(()=>this.updateArc(), 100);
+      if (!this.arc) setTimeout(() => this.updateArc(), 100);
     } else {
       updateLine(this.arc, this.content, this.ending);
     }
@@ -181,24 +182,44 @@ class Callout {
   }
 
   updateContent() {
-    let ending = this.ending;
+    this.reset();
+
     let content = this.content;
-
-    content.style.setProperty('left', null);
-    content.style.setProperty('top', null);
-
     const r = content.getBoundingClientRect();
     const w = document.body.getBoundingClientRect().width;
-    const p = this.elem.getBoundingClientRect().left;
     if (r.right > w) {
+      const p = this.elem.getBoundingClientRect().left;
       moveBy(content, { x: w - r.right - p, y: 0 });
     }
   }
 
+  reset() {
+    let content = this.content;
+    content.style.setProperty('left', null);
+    content.style.setProperty('top', null);
+  }
+
   update() {
-    let elem = this.elem;
     this.updateEnding();
     this.updateContent();
+  }
+
+  updateFromLocalStorate() {
+    let value = localStorage.getItem(JSON.stringify(this.configs));
+    if (value) {
+      let content = this.content;
+
+      const w = document.body.getBoundingClientRect().width;
+      let { top, left } = JSON.parse(value);
+
+      content.style.setProperty('left', left + 'px');
+      content.style.setProperty('top', top + 'px');
+      let rect = content.getBoundingClientRect();
+      if (rect.right > w) {
+        const p = this.elem.getBoundingClientRect().left;
+        moveBy(content, { x: w - rect.right - p, y: 0 });
+      }
+    }
   }
 
   install() {
@@ -207,6 +228,22 @@ class Callout {
 
     node.classList.add('annotated');
     this.elem = createElement(node, configs);
+    let content = this.content;
+
+    let requestUpdate = debounce(() => this.update());
+    enableDrag(content, {
+      ondrop: () => {
+        localStorage.setItem(
+          JSON.stringify(this.configs),
+          JSON.stringify({
+            left: content.offsetLeft + 10,
+            top: content.offsetTop + 10
+          })
+        );
+        this.callouts.update();
+      },
+      ondrag: () => this.updateArc()
+    });
 
     return true;
   }
@@ -215,6 +252,7 @@ class Callout {
 class CalloutCollection {
   constructor(callouts) {
     this.callouts = callouts;
+    callouts.forEach(callout => (callout.callouts = this));
   }
 
   install() {
@@ -224,11 +262,16 @@ class CalloutCollection {
     );
   }
 
-  update() {
-    this.callouts.forEach(callout => callout.update());
+  updatePositions() {
     const contents = document.querySelectorAll('.callout .content');
     removeOverlaps(contents);
     this.callouts.forEach(callout => callout.updateArc());
+  }
+
+  update() {
+    this.callouts.forEach(callout => callout.update());
+    this.callouts.forEach(callout => callout.updateFromLocalStorate());
+    this.updatePositions();
   }
 
   forEach(callback) {
@@ -236,7 +279,7 @@ class CalloutCollection {
   }
 }
 
-export function createCallout(target) {
+function createCallout(target) {
   let configs = target.configs;
   target.comment.remove();
   if (Array.isArray(configs)) {

@@ -14,7 +14,7 @@ export function parseMessage(node, message) {
   }
   message = msg;
 
-  let regexAttr = /\$attr\((.*)\)/;
+  let regexAttr = /\$attr\((.*)\)/g;
   match = regexAttr.exec(message);
 
   while (match) {

@@ -1,3 +1,5 @@
+import {Rectangle, removeOverlaps as rmvOverlaps} from 'webcola';
+
 // -------------------------------------
 export default function getPosition(callout, target, configs) {
   let top = null;
@@ -89,7 +91,7 @@ export function getRects(nodes) {
     let rect = node.getBoundingClientRect();
     // epsilon values because of bug in cola: https://github.com/tgdwyer/WebCola/issues/279
     let j = Number.EPSILON * 500 * i++;
-    return new cola.Rectangle(
+    return new Rectangle(
       rect.left + j - margin,
       rect.right + margin,
       rect.top + j - margin,
@@ -100,9 +102,11 @@ export function getRects(nodes) {
 }
 
 export function applyRects(nodes, rects) {
-  let parents = Array.from(nodes).map(node => node.parentNode.getBoundingClientRect());
+  let parents = Array.from(nodes).map(node =>
+    node.parentNode.getBoundingClientRect()
+  );
 
-  for (let i = 0; i < rects.length; i++) {
+  for (let i = 0; i < nodes.length; i++) {
     nodes[i].style.setProperty('left', `${rects[i].x - parents[i].left}px`);
     nodes[i].style.setProperty('top', `${rects[i].y - parents[i].top}px`);
   }
@@ -111,18 +115,31 @@ export function applyRects(nodes, rects) {
 export function resizeFull(elem) {
   let r = document.body.getBoundingClientRect();
   let css = getComputedStyle(document.body);
-  
+
   var value = v => Number.parseFloat(v.replace('px'));
   css.v = name => value(css[name]);
 
-  elem.style.setProperty('width', `${r.width + css.v('margin-left') + css.v('margin-right')}px`);
-  elem.style.setProperty('height', `${r.height + css.v('margin-top') + css.v('margin-bottom')}px`);
+  elem.style.setProperty(
+    'width',
+    `${r.width + css.v('margin-left') + css.v('margin-right')}px`
+  );
+  elem.style.setProperty(
+    'height',
+    `${r.height + css.v('margin-top') + css.v('margin-bottom')}px`
+  );
 }
 
-export function removeOverlaps(nodes) {
+export function removeOverlaps(nodes, anchors) {
   let rects = getRects(nodes);
-  cola.removeOverlaps(rects);
-  applyRects(nodes, rects);
+  if (!!anchors) {
+    let a = getRects(anchors);
+    a = rects.concat(a);
+    rmvOverlaps(a);
+    applyRects(nodes, rects);
+  } else {
+    rmvOverlaps(rects);
+    applyRects(nodes, rects);
+  }
 }
 
 // export function moveBy(ref, node, delta) {
@@ -137,5 +154,5 @@ export function moveBy(node, delta) {
   const r = node.getBoundingClientRect();
 
   node.style.setProperty('left', `${r.left + delta.x}px`);
-//   node.style.setProperty('top', `${r.top + delta.y}px`);
+  //   node.style.setProperty('top', `${r.top + delta.y}px`);
 }

@@ -1,5 +1,6 @@
 // -------------------------------------
 export function colorHexToName(color) {
+  if(!color) return color;
   return color
     .replace('#ff0000', 'rouge')
     .replace('#00ff00', 'vert')
@@ -8,6 +9,7 @@ export function colorHexToName(color) {
 
 // -------------------------------------
 export function colorToHex(color) {
+  if(!color) return color;
   if (color.substr(0, 1) === '#') {
     return color;
   }
@@ -26,6 +28,7 @@ export function colorToHex(color) {
 
 // -------------------------------------
 export function normalizePixels(value) {
+  if(!value) return value;
   value = value.replace('px', ' pixels');
   let match = /(\d+\.\d+) pixels/.exec(value);
   if (match) {
@@ -39,6 +42,7 @@ export function normalizePixels(value) {
 
 // -------------------------------------
 export function normalize(value) {
+  if(!value) return value;
     value = colorToHex(value);
     value = colorHexToName(value);
     value = normalizePixels(value);
