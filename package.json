@@ -1,0 +1,21 @@
+{
+  "name": "annotator.velor.ca",
+  "version": "1.0.0",
+  "description": "Html annotation to describe page fir students in computer science",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start:dev": "webpack-dev-server"
+  },
+  "author": "Glenn Hall",
+  "license": "ISC",
+  "dependencies": {
+    "svg.js": "^2.7.1",
+    "webcola": "^3.4.0"
+  },
+  "devDependencies": {
+    "webpack": "^4.41.1",
+    "webpack-cli": "^3.3.9",
+    "webpack-dev-server": "^3.8.2"
+  }
+}
