@@ -1,81 +1,9 @@
-import { addStyleSheet, addScript, debounce } from './utils.js';
+import { debounce } from './utils.js';
 import { parseMessage } from './targets.js';
 import getPosition, { moveBy, removeOverlaps } from './positionning.js';
 import enableDrag from './drag.js';
 import * as SVG from 'svg.js';
-
-const styles = `
-.callout {
-    user-select: none;
-    position: absolute;
-    width: 100%;
-}
-.callout.bordered {
-    border: 1px solid black;
-}
-.callout.css {
-    counter-increment: callout-css;
-}
-.callout.html {
-    counter-increment: callout-html;
-}
-.callout .content {
-    border: 1px dashed black;
-    background: white;
-    padding: 2px 4px 2px 4px;
-    position: absolute;
-    top: 50px;
-    left: 50px;
-    cursor: move;
-    max-width: 300px;
-}
-.callout::before,
-.callout .content {
-  box-shadow: 2px 2px rgba(0, 0, 0, .3);
-}
-.callout .content::before {
-    position: absolute;
-    top: -10px;
-    left: -15px;
-    width: 20px;
-    height: 20px;
-    text-align: center;
-    background: white;
-    border: 1px solid black;
-}
-.callout.css .content::before {
-    content: counter(callout-css);
-    border-radius: 10px;
-    background-color: lightgreen;
-}
-.callout.html  .content::before {
-    content: counter(callout-html, lower-alpha);
-    background-color: lightblue;
-}
-.connectors {
-    position:absolute;
-    display: block;
-    top: 0;
-    left: 0;
-    width: 100%;
-    bottom: 0;
-}
-.callout .ending {
-    position: absolute;
-    width: 10px;
-    height: 10px;
-    border: 1px solid black;
-    top: 0px;
-    left: 0px;
-    background: white;
-}
-.callout.css .ending {
-    border-radius: 5px;
-}
-`;
-
-var elem = addStyleSheet(styles);
-elem.id = 'callout-stylesheet';
+import './callout.css';
 
 let connectors = document.createElement('div');
 connectors.classList.add('connectors', 'resize-to-body');
