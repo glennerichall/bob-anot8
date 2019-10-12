@@ -1,8 +1,8 @@
 import { getTargets } from './targets.js';
 import styleSheets from './styles.js';
-import { addStyleSheet, debounce } from './utils.js';
+import { addStyleSheet } from './utils.js';
 import createCallouts from './callout.js';
-import { createToggleButton, createButton } from './menu.js';
+import {menu} from './menu.js';
 import { resizeFull } from './positionning.js';
 
 addStyleSheet(styleSheets);
@@ -13,9 +13,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (!callouts.install()) {
     alert('unable to install callouts');
+    return;
   }
 
-
+  menu(callouts);
 
   
 });

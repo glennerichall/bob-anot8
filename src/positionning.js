@@ -1,85 +1,184 @@
 import {Rectangle, removeOverlaps as rmvOverlaps} from 'webcola';
 
-// -------------------------------------
-export default function getPosition(callout, target, configs) {
-  let top = null;
-  let left = null;
+const value = v => Number.parseFloat(v.replace('px'));
+const cssV = css => ((css.v = name => value(css[name])), css);
+const computedStyle = target => cssV(getComputedStyle(target));
+
+function getSnapLocation(target, configs) {
   var rect = target.getBoundingClientRect();
-  var css = getComputedStyle(target);
+  var css = computedStyle(target);
 
   configs = configs || {};
   configs = {
-    'vertical-align': 'bottom',
-    'horizontal-align': 'middle',
-    position: 'border-bottom',
+    'vertical-align': 'middle',
+    'horizontal-align': 'center',
+    'vertical-snap': 'content',
+    'horizontal-snap': 'content',
     ...configs
   };
 
-  let position = configs.position;
+  let valign = configs['vertical-align'];
+  let halign = configs['horizontal-align'];
+  let vsnap = configs['vertical-snap'];
+  let hsnap = configs['horizontal-snap'];
 
-  var value = v => Number.parseFloat(v.replace('px'));
-  css.v = name => value(css[name]);
+  let vdelta = {
+    bottom: 0,
+    middle: 0,
+    top: 0
+  };
 
-  if (position == 'border-bottom') {
-    top = rect.bottom - css.v('borderBottomWidth') / 2;
+  let hdelta = {
+    left: 0,
+    center: 0,
+    right: 0
+  };
+
+  let left = 0,
+    top = 0;
+
+  if (vsnap == 'border-bottom') {
+    top = rect.bottom;
+    vdelta.top = -css.v('border-bottom-width');
+    vdelta.middle = vdelta.top / 2;
+  } else if (vsnap == 'padding-bottom') {
+    top = rect.bottom;
+    let padding = css.v('padding-bottom');
+    vdelta.bottom = css.v('border-bottom-width');
+    vdelta.top = vdelta.bottom + padding;
+    vdelta.middle = vdelta.bottom + padding / 2;
+  } else if (vsnap == 'content') {
+    top = rect.top;
+    let btop = css.v('border-top-width');
+    let bbot = css.v('border-bottom-width');
+    vdelta.top = btop;
+    vdelta.bottom = rect.height - bbot;
+    vdelta.middle = rect.height / 2;
+  } else if (vsnap == 'padding-top') {
+    top = rect.top;
+    let padding = css.v('padding-top');
+    vdelta.top = -css.v('border-top-width');
+    vdelta.bottom = vdelta.top - padding;
+    vdelta.middle = vdelta.top - padding / 2;
+  } else if (vsnap == 'border-top') {
+    top = rect.top;
+    vdelta.bottom = css.v('border-top-width');
+    vdelta.middle = vdelta.bottom / 2;
+  }
+
+  if (hsnap == 'border-left') {
     left = rect.left;
-  }
-
-  if (position == 'border-bottom-right') {
-    top = rect.bottom - css.v('border-bottom-width') / 2;
-    left = rect.right - css.v('border-right-width') / 2;
-  } else if (position == 'border-left') {
-    left = rect.left + css.v('border-left-width') / 2;
-    top = rect.top;
-  } else if (position == 'border-top-left') {
-    left = rect.left + css.v('border-left-width') / 2;
-    top = rect.top + css.v('border-top-width') / 2;
-  } else if (position == 'border-right') {
-    left = rect.right - css.v('border-right-width') / 2;
-    top = rect.top;
-  } else if (position == 'padding-left') {
-    left = rect.left + css.v('padding-left') / 2;
-    top = rect.top;
-  } else if (position == 'padding-right') {
-    left = rect.right - css.v('padding-right') / 2;
-    top = rect.top;
-  } else if (position == 'text-right') {
+    hdelta.right = css.v('border-left-width');
+    hdelta.center = hdelta.right / 2;
+  } else if (hsnap == 'padding-left') {
+    left = rect.left;
+    let padding = css.v('padding-left');
+    hdelta.left = css.v('border-left-width');
+    hdelta.right = hdelta.left + padding;
+    hdelta.center = hdelta.right - padding / 2;
+  } else if (hsnap == 'content') {
+    left = rect.left;
+    hdelta.left = css.v('border-left-width');
+    hdelta.right = hdelta.left + rect.width;
+    hdelta.center = hdelta.right - rect.width / 2;
+  } else if (hsnap == 'padding-right') {
+    left = rect.right;
+    let padding = css.v('padding-right');
+    hdelta.right = -css.v('border-right-width');
+    hdelta.left = hdelta.right - padding;
+    hdelta.center = hdelta.right - padding / 2;
+  } else if (hsnap == 'border-right') {
+    left = rect.right;
+    hdelta.left = -css.v('border-right-width');
+    hdelta.center = hdelta.left / 2;
+  } else if (hsnap == 'text') {
     let font = css['font-size'] + ' ' + css['font-family'];
     let weight = css['font-weight'];
-    left = rect.left + target.innerText.width(font, weight);
-    top = rect.top;
-  } else if (position == 'text-middle-right') {
-    let font = css['font-size'] + ' ' + css['font-family'];
-    let weight = css['font-weight'];
-    let height = css.v('font-size');
-    left = rect.left + target.innerText.width(font, weight);
-    top = rect.top + height / 2;
+    left = rect.left;
+    // TODO calculate for text-alignment
+    hdelta.right = target.innerText.width(font, weight);
+    hdelta.center = hdelta.right / 2;
   }
 
-  if (configs['vertical-align'] == 'bottom') {
-    top -= callout.getBoundingClientRect().height;
-  } else if (configs['vertical-align'] == 'top') {
-  } else if (configs['vertical-align'] == 'middle') {
-    top -= callout.getBoundingClientRect().height / 2;
+  top += vdelta[valign];
+  left += hdelta[halign];
+
+  return { left, top };
+}
+
+function getMargin(target, configs) {
+  var rect = target.getBoundingClientRect();
+
+  configs = configs || {};
+  configs = {
+    'margin-top': '0px',
+    'margin-left': '0px',
+    ...configs
+  };
+
+  let x = 0,
+    y = 0;
+
+  let mt = configs['margin-top'].trim();
+  let ml = configs['margin-left'].trim();
+
+  y = Number.parseFloat(mt);
+  if (mt.endsWith('px')) {
+  } else if (mt.endsWith('%')) {
+    y /= 100;
+    y *= rect.height;
   }
 
-  if (configs['horizontal-align'] == 'left') {
-  } else if (configs['horizontal-align'] == 'right') {
-    left -= callout.getBoundingClientRect().width;
-  } else if (configs['horizontal-align'] == 'center') {
-    left -= callout.getBoundingClientRect().width / 2;
+  x = Number.parseFloat(ml);
+  if (ml.endsWith('px')) {
+  } else if (mt.endsWith('%')) {
+    x /= 100;
+    x *= rect.width;
   }
 
-  if (configs['margin-top']) {
-    top += Number.parseFloat(configs['margin-top']);
+  return { x, y };
+}
+
+function getAnchorDelta(target, configs) {
+  var rect = target.getBoundingClientRect();
+
+  configs = configs || {};
+  configs = {
+    'vertical-anchor': 'middle',
+    'horizontal-anchor': 'center',
+    ...configs
+  };
+
+  let v = configs['vertical-anchor'];
+  let h = configs['horizontal-anchor'];
+  let x = 0,
+    y = 0;
+
+  if (v == 'middle') {
+    y = -rect.height / 2;
+  } else if (v == 'bottom') {
+    y = -rect.height;
   }
 
-  if (configs['margin-left']) {
-    left += Number.parseFloat(configs['margin-left']);
+  if (h == 'center') {
+    x = -rect.width / 2;
+  } else if (h == 'right') {
+    x = -rect.width;
   }
 
-  if (top != null && top < 10) top = 10;
-  if (left != null && left < 10) left = 10;
+  return { x, y };
+}
+
+export default function getPosition(callout, target, configs) {
+  let { left, top } = getSnapLocation(target, configs);
+  let anchor = getAnchorDelta(callout, configs);
+  let margin = getMargin(target, configs);
+
+  left += anchor.x + margin.x;
+  top += anchor.y + margin.y;
+
+  if (top < 10) top = 10;
+  if (left < 10) left = 10;
 
   return { left, top };
 }

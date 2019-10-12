@@ -1,13 +1,15 @@
 import './menu.css';
 import { createToggleButton, createButton } from './buttons.js';
+import {debounce} from './utils.js';
+import {resizeFull} from './positionning.js';
 
-export default function menu(callouts) {
+export function menu(callouts) {
   let menu = document.createElement('div');
   menu.classList.add('menu');
   document.body.appendChild(menu);
 
   // Border toggle button
-  let toggleBorder = createToggleButton(elem);
+  let toggleBorder = createToggleButton(menu);
   toggleBorder.innerText = 'Afficher les bordures';
   toggleBorder.onchecked = () =>
     callouts.forEach(callout => callout.elem.classList.add('bordered'));
@@ -16,7 +18,7 @@ export default function menu(callouts) {
 
   // Print action
   let requestedFromMenu = false;
-  let print = createButton();
+  let print = createButton(menu);
   print.innerText = 'Imprimer';
   print.onclick = () => {
     document.body.classList.add('print');
@@ -42,4 +44,6 @@ export default function menu(callouts) {
     );
     return false;
   };
+
+  requestUpdate();
 }
