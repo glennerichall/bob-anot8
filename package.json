@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start:dev": "webpack-dev-server --env.target='dev'"
+    "start:dev": "webpack-dev-server --env.target='dev'",
+    "deploy": "npm version patch && webpack-cli --env.target='prod'"
   },
   "author": "Glenn Hall",
   "license": "ISC",
@@ -22,6 +23,8 @@
     "url-loader": "^2.2.0",
     "webpack": "^4.41.1",
     "webpack-cli": "^3.3.9",
-    "webpack-dev-server": "^3.8.2"
+    "webpack-dev-server": "^3.8.2",
+    "webpack-merge": "^4.2.2",
+    "webpack-s3-plugin": "^1.0.3"
   }
 }

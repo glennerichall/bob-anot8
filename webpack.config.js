@@ -1,11 +1,35 @@
 const path = require('path');
 const webpack = require('webpack');
+var S3Plugin = require('webpack-s3-plugin');
 
 module.exports = env => {
+  let plugins = [
+    // add the plugin to your plugins array
+    new webpack.DefinePlugin({ 'process.env.target': `'${env.target}'`})
+  ];
+  console.log(process.env.npm_package_version);
+
+  // if (env.target == 'prod') {
+  //   plugins.push(
+  //     new S3Plugin({
+  //       // Only upload css and js
+  //       include: /.*\.(css|js)/,
+  //       // s3Options are required
+  //       s3Options: {
+  //         accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  //         secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+  //       },
+  //       s3UploadOptions: {
+  //         Bucket: 'velor'
+  //       }
+  //     })
+  //   );
+  // }
+
   return {
     entry: './src/index.js',
     output: {
-      filename: 'annotator.js',
+      filename: env.target == 'dev' ? 'annotator.js' : 'annotator.min.js',
       path: path.resolve(__dirname, 'dist')
     },
     module: {
@@ -29,10 +53,7 @@ module.exports = env => {
         }
       ]
     },
-    plugins: [
-      // add the plugin to your plugins array
-      new webpack.DefinePlugin({ 'process.env.target': env.target })
-    ],
+    plugins,
     devtool: 'inline-source-map',
     devServer: {
       historyApiFallback: true,
