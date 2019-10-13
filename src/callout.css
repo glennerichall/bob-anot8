@@ -64,6 +64,7 @@
   top: 0px;
   left: 0px;
   background: white;
+  cursor: move;
 }
 .callout.css .ending {
   border-radius: 5px;

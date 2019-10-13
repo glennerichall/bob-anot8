@@ -1,19 +1,64 @@
+:root {
+  --button-height: 25px;
+  --button-icon-size: 16px;
+  --button-border: 1px solid rgb(187, 187, 187);
+  --logo-height: 25px;
+  --menu-spacing: 5px;
+  --radius: 3px;
+}
+
+.menu .button:first-of-type {
+  border-top-left-radius: var(--radius);
+  border-bottom-left-radius: var(--radius);
+}
+
+.menu .button + .button {
+  border-left: var(--button-border);
+}
+
+.menu .button:last-of-type {
+  border-top-right-radius: var(--radius);
+  border-bottom-right-radius: var(--radius);
+}
+
+.menu #calma-logo {
+  height: var(--logo-height);
+  float: right;
+  margin-right: var(--menu-spacing);
+  margin-left: var(--menu-spacing);
+}
+.menu img {
+  background-color: initial;
+  border: initial;
+  border-radius: initial;
+}
+
+.menu .button img {
+  width: var(--button-icon-size);
+  height: var(--button-icon-size);
+  margin-right: var(--menu-spacing);
+  float: left;
+  line-height: var(--button-height);
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
 .menu .button {
     display: inline-block;
-    min-width: 100px;
-    height: 30px;
-    border-radius: 5px;
-    border: 1px solid grey;
+    height: var(--button-height);
+    border: var(--button-border);
+    border-right: none;
+    border-left: none;
     background-color: lightgrey;
     text-align: center;
     font-size: 0.6em;
-    line-height: 30px;
+    line-height: var(--button-height);
     cursor: pointer;
     user-select: none;
-    margin-right: 10px;
     font-size: 0.8em;
-    padding-left: 5px;
-    padding-right: 5px;
+    padding-left: var(--menu-spacing);
+    padding-right: var(--menu-spacing);
   }
   .menu .button:last-child{
     margin-right: inherit;
@@ -24,9 +69,9 @@
       top: 10px;
       z-index: 1000;
       background-color: rgba(150,150,150,0.2);
-      padding: 5px;
-      border: 1px solid rgba(50,50,50,0.5);
-      border-radius: 5px;
+      padding: var(--menu-spacing);
+      border: 1px solid rgba(112, 112, 112, 0.5);
+      border-radius:var(--radius);
   }
   .menu .button:hover {
     background-color: grey;
@@ -39,7 +84,7 @@
     color: white;
   }
   @media print {
-    .menu .button {
+    .menu {
       display: none;
     }
   }

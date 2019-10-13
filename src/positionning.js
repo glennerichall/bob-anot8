@@ -1,4 +1,4 @@
-import {Rectangle, removeOverlaps as rmvOverlaps} from 'webcola';
+import { Rectangle, removeOverlaps as rmvOverlaps } from 'webcola';
 
 const value = v => Number.parseFloat(v.replace('px'));
 const cssV = css => ((css.v = name => value(css[name])), css);
@@ -64,6 +64,8 @@ function getSnapLocation(target, configs) {
     top = rect.top;
     vdelta.bottom = css.v('border-top-width');
     vdelta.middle = vdelta.bottom / 2;
+  } else {
+    console.error(`unknown value for 'vertical-snap': ${vsnap}`);
   }
 
   if (hsnap == 'border-left') {
@@ -78,7 +80,7 @@ function getSnapLocation(target, configs) {
     hdelta.center = hdelta.right - padding / 2;
   } else if (hsnap == 'content') {
     left = rect.left;
-    hdelta.left = css.v('border-left-width');
+    hdelta.left = css.v('border-left-width') + css.v('padding-left');
     hdelta.right = hdelta.left + rect.width;
     hdelta.center = hdelta.right - rect.width / 2;
   } else if (hsnap == 'padding-right') {
@@ -98,6 +100,8 @@ function getSnapLocation(target, configs) {
     // TODO calculate for text-alignment
     hdelta.right = target.innerText.width(font, weight);
     hdelta.center = hdelta.right / 2;
+  } else {
+    console.error(`unknown value for 'horizontal-snap': ${hsnap}`);
   }
 
   top += vdelta[valign];
@@ -127,6 +131,8 @@ function getMargin(target, configs) {
   } else if (mt.endsWith('%')) {
     y /= 100;
     y *= rect.height;
+  } else {
+    console.error(`unknown value for 'margin-top': ${mt}`);
   }
 
   x = Number.parseFloat(ml);
@@ -134,6 +140,8 @@ function getMargin(target, configs) {
   } else if (mt.endsWith('%')) {
     x /= 100;
     x *= rect.width;
+  } else {
+    console.error(`unknown value for 'margin-left': ${ml}`);
   }
 
   return { x, y };
@@ -158,12 +166,18 @@ function getAnchorDelta(target, configs) {
     y = -rect.height / 2;
   } else if (v == 'bottom') {
     y = -rect.height;
+  } else if (v == 'top') {
+  } else {
+    console.error(`unknown value for 'vertical-anchor': ${v}`);
   }
 
   if (h == 'center') {
     x = -rect.width / 2;
   } else if (h == 'right') {
     x = -rect.width;
+  } else if (h == 'left') {
+  } else {
+    console.error(`unknown value for 'horizontal-anchor': ${h}`);
   }
 
   return { x, y };

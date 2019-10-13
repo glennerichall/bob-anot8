@@ -67,7 +67,7 @@ function connect(a, b) {
 class Callout {
   constructor(node, configs) {
     this.node = node;
-    this.configs = configs;
+    this.initialConfigs = configs;
   }
 
   get content() {
@@ -76,6 +76,23 @@ class Callout {
 
   get ending() {
     return this.elem.querySelector('.ending');
+  }
+
+  get localStorageConfigs() {
+    let storage = localStorage.getItem(JSON.stringify(this.initialConfigs.id));
+    if (storage) {
+      storage = JSON.parse(storage);
+    } else {
+      storage = {};
+    }
+    return storage;
+  }
+
+  get configs() {
+    return {
+      ...this.initialConfigs,
+      ...this.localStorageConfigs
+    };
   }
 
   updateArc() {
@@ -111,13 +128,25 @@ class Callout {
 
   updateContent() {
     this.reset();
-
+    let configs = this.configs;
     let content = this.content;
     const r = content.getBoundingClientRect();
     const w = document.body.getBoundingClientRect().width;
-    if (r.right > w) {
+
+    let top = configs['callout-top'];
+    let left = configs['callout-left'];
+
+    if (left) {
+      content.style.setProperty('left', left);
+    }
+    if (top) {
+      content.style.setProperty('top', top);
+    }
+
+    let rect = content.getBoundingClientRect();
+    if (rect.right > w) {
       const p = this.elem.getBoundingClientRect().left;
-      moveBy(content, { x: w - r.right - p, y: 0 });
+      moveBy(content, { x: w - rect.right - p, y: 0 });
     }
   }
 
@@ -132,22 +161,15 @@ class Callout {
     this.updateContent();
   }
 
-  updateFromLocalStorate() {
-    let value = localStorage.getItem(JSON.stringify(this.configs));
-    if (value) {
-      let content = this.content;
-
-      const w = document.body.getBoundingClientRect().width;
-      let { top, left } = JSON.parse(value);
-
-      content.style.setProperty('left', left + 'px');
-      content.style.setProperty('top', top + 'px');
-      let rect = content.getBoundingClientRect();
-      if (rect.right > w) {
-        const p = this.elem.getBoundingClientRect().left;
-        moveBy(content, { x: w - rect.right - p, y: 0 });
-      }
-    }
+  saveState(state) {
+    let configs = {
+      ...this.localStorageConfigs,
+      ...state
+    };
+    localStorage.setItem(
+      JSON.stringify(this.configs.id),
+      JSON.stringify(configs)
+    );
   }
 
   install() {
@@ -158,17 +180,42 @@ class Callout {
     this.elem = createElement(node, configs);
     let content = this.content;
 
+    // content dragging
     let requestUpdate = debounce(() => this.update());
     enableDrag(content, {
       ondrop: () => {
-        localStorage.setItem(
-          JSON.stringify(this.configs),
-          JSON.stringify({
-            left: content.offsetLeft + 10,
-            top: content.offsetTop + 10
-          })
-        );
+        this.saveState({
+          'callout-left': (content.offsetLeft + 10) + 'px',
+          'callout-top': (content.offsetTop + 10) + 'px'
+        });
         this.callouts.update();
+      },
+      ondrag: () => this.updateArc()
+    });
+
+    let origin = {};
+    // ending dragging
+    enableDrag(this.ending, {
+      onstart: ()=> {
+        let configs = this.configs;
+        let mt = configs['margin-top'] || '0px';
+        let ml = configs['margin-left'] || '0px';
+        mt = Number.parseFloat(mt);
+        ml = Number.parseFloat(ml);
+        origin.x = ml;
+        origin.y = mt;
+      },
+      ondrop: (delta) => {
+        let ending = this.ending;
+        let mt = this.initialConfigs['margin-top'] || '0px';
+        let ml = this.initialConfigs['margin-left'] || '0px';
+        mt = Number.parseFloat(mt);
+        ml = Number.parseFloat(ml);
+        console.log(mt + delta.x);
+        this.saveState({
+          'margin-left': (ml + delta.x) + 'px',
+          'margin-top': (mt + delta.y) + 'px'
+        });
       },
       ondrag: () => this.updateArc()
     });
@@ -198,7 +245,6 @@ class CalloutCollection {
 
   update() {
     this.callouts.forEach(callout => callout.update());
-    this.callouts.forEach(callout => callout.updateFromLocalStorate());
     this.updatePositions();
   }
 
@@ -214,6 +260,11 @@ function createCallout(target) {
     return configs.map(config => createCallout({ ...target, configs: config }));
   }
 
+  if (!configs.id) {
+    console.error(`annotations must have a unique id `);
+    console.error(target.comment);
+    console.error(target.node);
+  }
   return new Callout(target.node, configs);
 }
 
