@@ -14,22 +14,22 @@ module.exports = env => {
   console.log('version: ' + version);
   console.log('environment: ' + env.target);
 
-  // if (env.target == 'prod') {
-  //   plugins.push(
-  //     new S3Plugin({
-  //       // Only upload css and js
-  //       include: /.*\.(css|js)/,
-  //       // s3Options are required
-  //       s3Options: {
-  //         accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  //         secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
-  //       },
-  //       s3UploadOptions: {
-  //         Bucket: 'velor'
-  //       }
-  //     })
-  //   );
-  // }
+  if (env.target == 'prod') {
+    plugins.push(
+      new S3Plugin({
+        // Only upload css and js
+        include: /.*\.(css|js)/,
+        // s3Options are required
+        s3Options: {
+          accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+          secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+        },
+        s3UploadOptions: {
+          Bucket: 'velor'
+        }
+      })
+    );
+  }
 
   return {
     entry: './src/index.js',
