@@ -1,11 +1,8 @@
-import { getTargets } from './targets.js';
-import styleSheets from './styles.js';
-import { addStyleSheet } from './utils.js';
-import createCallouts from './callout.js';
-import {menu} from './menu.js';
-import { resizeFull } from './positionning.js';
-
-addStyleSheet(styleSheets);
+import { getTargets } from './javascripts/targets.js';
+import { addStyleSheet } from './javascripts/utils.js';
+import createCallouts from './javascripts/callout.js';
+import { menu } from './javascripts/menu.js';
+import './css/index.css';
 
 document.addEventListener('DOMContentLoaded', () => {
   let targets = getTargets(document);
@@ -17,6 +14,4 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   menu(callouts);
-
-  
 });

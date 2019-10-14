@@ -3,7 +3,8 @@ import { parseMessage, annotate } from './targets.js';
 import getPosition, { moveBy, removeOverlaps } from './positionning.js';
 import enableDrag from './drag.js';
 import * as SVG from 'svg.js';
-import style from './callout.css';
+import style from '../css/callout.css';
+// require('style-loader?{attributes:{id: "style-tag-id"}}!../css/callout.css');
 
 let connectors = document.createElement('div');
 connectors.classList.add('connectors', 'resize-to-body');
@@ -22,8 +23,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // draw = SVG()
   //   .addTo('#connectors')
   //   .size('100%', '100%');
-
-  style.id = 'bob';
 });
 
 function createElement(node, config) {
@@ -79,6 +78,10 @@ class Callout {
 
   get ending() {
     return this.elem.querySelector('.ending');
+  }
+
+  get tagId() {
+    return this.node.getAttribute('tag-id');
   }
 
   get localStorageConfigs() {
@@ -226,11 +229,10 @@ class Callout {
     return true;
   }
 
-  reinsert() {
+  insertInto(dom) {
     let configs = this.configs;
-    let node = this.node;
-    node.classList.remove('annotated');
-    annotate(node, configs);
+    let other = dom.querySelector(`[tag-id="${this.tagId}"]`);
+    annotate(other, configs);
   }
 }
 
@@ -262,9 +264,8 @@ class CalloutCollection {
     this.callouts.forEach(callback);
   }
 
-  reinsert() {
-    this.callouts.forEach(callout => callout.reinsert());
-    // document.querySelectorAll('.callout').forEach(node=>node.remove());
+  insertInto(dom) {
+    this.callouts.forEach(callout => callout.insertInto(dom));
   }
 }
 

@@ -41,7 +41,16 @@ module.exports = env => {
       rules: [
         {
           test: /\.css$/i,
-          use: ['style-loader', 'css-loader']
+          use: [
+            {
+              loader: 'style-loader',
+              options: {
+                injectType: 'singletonStyleTag',
+                attributes: { id: 'callout-styles' }
+              }
+            },
+            'css-loader'
+          ]
         },
         {
           test: /\.(gif|png|jpe?g|svg)$/i,

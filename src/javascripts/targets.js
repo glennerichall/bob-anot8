@@ -54,11 +54,13 @@ export function getTargets(rootElem) {
   var iterator = getIterator(rootElem);
 
   var curNode = iterator.nextNode();
+  let tagId = 0;
   while (curNode) {
     let comment = curNode.nodeValue;
     let next = iterator.nextNode();
     // find comment nodes (type == 8)
     if (curNode.nodeType == 8) {
+      next.setAttribute('tag-id', tagId++);
       let configs = JSON.parse(comment.replace(tag, ''));
       let target = { node: next, configs, comment: curNode };
       targets.push(target);
@@ -69,24 +71,23 @@ export function getTargets(rootElem) {
 }
 
 export function annotate(target, configs) {
-  let parent = target.parentNode;
+  let previous = target.previousSibling;
+  // ignore text nodes
+  while (!!previous && previous.nodeType == 3) {
+    previous = previous.previousSibling;
+  }
 
-  for (let i = 1; i < parent.childNodes.length; i++) {
-    let current = parent.childNodes[i];
-    let previous = parent.childNodes[i - 1];
-    if (current == target) {
-      if (previous.previousSibling.nodeType == 8 && previous.previousSibling.nodeValue.includes(tag)) {
-        let data = JSON.parse(previous.previousSibling.nodeValue.replace(tag, ''));
-        data.push(configs);
-        data = tag + JSON.stringify(data, null, 2);
-        previous.previousSibling.nodeValue = data;
-      } else {
-        let data = tag + '[\n' + JSON.stringify(configs, null, 2) + '\n]';
-        let annotation = document.createComment(data);
-        let newLine = document.createTextNode('\n');
-        parent.insertBefore(newLine, target);
-        parent.insertBefore(annotation, newLine);
-      }
-    }
+  if (!!previous && previous.nodeType == 8 && previous.nodeValue.includes(tag)) {
+    let data = JSON.parse(previous.nodeValue.replace(tag, ''));
+    data.push(configs);
+    data = tag + JSON.stringify(data, null, 2);
+    previous.nodeValue = data;
+  } else {
+    let parent = target.parentNode;
+    let data = tag + '[\n' + JSON.stringify(configs, null, 2) + '\n]';
+    let annotation = document.createComment(data);
+    let newLine = document.createTextNode('\n');
+    parent.insertBefore(newLine, target);
+    parent.insertBefore(annotation, newLine);
   }
 }
