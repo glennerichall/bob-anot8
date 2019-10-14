@@ -33,6 +33,12 @@ export function menu(callouts) {
       callouts.forEach(callout => callout.elem.classList.remove('bordered'));
   }
 
+  let version = document.createElement('div');
+  version.id = 'version';
+  version.innerText = process.env.version;
+  menu.appendChild(version);
+
+
   // Print action
   let requestedFromMenu = false;
   let print = createButton(menu);

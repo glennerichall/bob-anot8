@@ -3,8 +3,11 @@
   --button-icon-size: 16px;
   --button-border: 1px solid rgb(187, 187, 187);
   --logo-height: 25px;
-  --menu-spacing: 5px;
   --radius: 3px;
+  --menu-spacing: 5px;
+  --menu-border: 1px solid rgba(112, 112, 112, 0.5);
+  --menu-background: rgba(150,150,150, 0.2);
+  --version-background: rgb(150,150,150);
 }
 
 .menu .button:first-of-type {
@@ -68,9 +71,9 @@
       right: 10px;
       top: 10px;
       z-index: 1000;
-      background-color: rgba(150,150,150,0.2);
+      background-color: var(--menu-background);
       padding: var(--menu-spacing);
-      border: 1px solid rgba(112, 112, 112, 0.5);
+      border: var(--menu-border);
       border-radius:var(--radius);
   }
   .menu .button:hover {
@@ -82,6 +85,19 @@
   .menu .button.checked {
     background-color: rgb(60,60,60);
     color: white;
+  }
+
+  .menu #version {
+    position: absolute;
+    top: -10px;
+    right: 5px;
+    background: var(--version-background);
+    border: var(--menu-border);
+    border-top: none;
+    border-radius: 5px;
+    padding-left: 3px;
+    padding-right: 3px;color: white;
+
   }
   @media print {
     .menu {

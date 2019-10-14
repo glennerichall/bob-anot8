@@ -1,13 +1,18 @@
 const path = require('path');
 const webpack = require('webpack');
 var S3Plugin = require('webpack-s3-plugin');
+var version = require('./package.json').version;
 
 module.exports = env => {
   let plugins = [
     // add the plugin to your plugins array
-    new webpack.DefinePlugin({ 'process.env.target': `'${env.target}'`})
+    new webpack.DefinePlugin({
+      'process.env.target': `'${env.target}'`,
+      'process.env.version': `'${version}'`
+    })
   ];
-  console.log(process.env.npm_package_version);
+  console.log('version: ' + version);
+  console.log('environment: ' + env.target);
 
   // if (env.target == 'prod') {
   //   plugins.push(
