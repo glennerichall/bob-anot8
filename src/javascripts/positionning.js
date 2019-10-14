@@ -81,8 +81,8 @@ function getSnapLocation(target, configs) {
   } else if (hsnap == 'content') {
     left = rect.left;
     hdelta.left = css.v('border-left-width') + css.v('padding-left');
-    hdelta.right = hdelta.left + rect.width;
-    hdelta.center = hdelta.right - rect.width / 2;
+    hdelta.right = rect.width - css.v('border-right-width') - css.v('padding-right');
+    hdelta.center = rect.width / 2;
   } else if (hsnap == 'padding-right') {
     left = rect.right;
     let padding = css.v('padding-right');
@@ -232,10 +232,10 @@ export function resizeFull(elem) {
   var value = v => Number.parseFloat(v.replace('px'));
   css.v = name => value(css[name]);
 
-  elem.style.setProperty(
-    'width',
-    `${r.width + css.v('margin-left') + css.v('margin-right')}px`
-  );
+  // elem.style.setProperty(
+  //   'width',
+  //   `${r.width + css.v('margin-left') + css.v('margin-right')}px`
+  // );
   elem.style.setProperty(
     'height',
     `${r.height + css.v('margin-top') + css.v('margin-bottom')}px`

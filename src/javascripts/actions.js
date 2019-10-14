@@ -5,7 +5,7 @@ import { saveAs } from 'file-saver';
 
 function clean(dom) {
   dom
-    .querySelectorAll('.callout,.menu,.dummy,.connectors,#SvgjsSvg1001,#callout-styles')
+    .querySelectorAll('.callouts,.menu,.dummy,.connectors,#SvgjsSvg1001,#callout-styles')
     .forEach(elem => elem.remove());
 
   dom.querySelectorAll('.annotated').forEach(elem => {

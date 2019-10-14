@@ -13,12 +13,20 @@ export function addScript(url) {
   return script;
 }
 
-// dummy is used to calculate string width with given font
-let dummy = document.createElement('div');
-dummy.classList.add('dummy');
-document.body.appendChild(dummy);
+document.addEventListener('DOMContentLoaded', () => {
+  // dummy is used to calculate string width with given font
+  let dummy = document.createElement('div');
+  dummy.classList.add('dummy');
+  document.body.appendChild(dummy);
+});
 
+let dummy;
 String.prototype.width = function(font, weight) {
+  if (!dummy) {
+    dummy = document.createElement('div');
+    dummy.classList.add('dummy');
+    document.body.appendChild(dummy);
+  }
   let f = font || '12px arial';
   dummy.innerText = this;
   dummy.style.setProperty('font', f);
@@ -31,18 +39,18 @@ export function debounce(f) {
   let executionPending = false;
 
   return function executor() {
-      if (executing) {
-        executionPending = true;
-        return;
-      }
-      executing = true;
+    if (executing) {
+      executionPending = true;
+      return;
+    }
+    executing = true;
 
-      f();
-      executing = false;
-      if (executionPending) {
-        executionPending = false;
-        setTimeout(executor, 0);
-      }
+    f();
+    executing = false;
+    if (executionPending) {
+      executionPending = false;
+      setTimeout(executor, 0);
+    }
     // return () => requestAnimationFrame(f);
   };
 }

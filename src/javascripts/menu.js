@@ -36,7 +36,7 @@ export function menu(callouts) {
 
   let actions = new Actions(callouts);
 
-  function addButton(text, image, action){
+  function addButton(text, image, action) {
     let btn = createButton(menu);
     btn.innerText = text;
     createImage(btn, image);

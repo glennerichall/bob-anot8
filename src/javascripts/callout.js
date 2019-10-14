@@ -3,18 +3,20 @@ import { parseMessage, annotate } from './targets.js';
 import getPosition, { moveBy, removeOverlaps } from './positionning.js';
 import enableDrag from './drag.js';
 import * as SVG from 'svg.js';
-import style from '../css/callout.css';
-// require('style-loader?{attributes:{id: "style-tag-id"}}!../css/callout.css');
-
-let connectors = document.createElement('div');
-connectors.classList.add('connectors', 'resize-to-body');
-connectors.id = 'connectors';
-document.body.appendChild(connectors);
-// style.use();
+import '../css/callout.css';
 
 let draw;
 document.addEventListener('DOMContentLoaded', () => {
   // is used to draw callout lines
+  let connectors = document.createElement('div');
+  connectors.classList.add('connectors', 'resize-to-body');
+  connectors.id = 'connectors';
+  document.body.appendChild(connectors);
+
+  let callouts = document.createElement('div');
+  callouts.classList.add('callouts', 'resize-to-body');
+  callouts.id = 'callouts';
+  document.body.appendChild(callouts);
 
   // version 2
   draw = SVG('connectors').size('100%', '100%');
@@ -25,21 +27,18 @@ document.addEventListener('DOMContentLoaded', () => {
   //   .size('100%', '100%');
 });
 
-function createElement(node, config) {
-  let callout = document.createElement('div');
-  callout.classList.add('callout', config.type);
-  document.body.appendChild(callout);
-
+function createElements(node, configs) {
   let content = document.createElement('div');
-  content.classList.add('content');
-  content.innerText = parseMessage(node, config.message);
-  callout.appendChild(content);
+  let callouts = document.getElementById('callouts');
+  content.classList.add('content', configs.type);
+  content.innerText = parseMessage(node, configs.message);
+  callouts.appendChild(content);
 
   let ending = document.createElement('div');
-  ending.classList.add('ending');
-  callout.appendChild(ending);
+  ending.classList.add('ending', configs.type);
+  callouts.appendChild(ending);
 
-  return callout;
+  return { content, ending };
 }
 
 function updateLine(line, a, b) {
@@ -70,14 +69,6 @@ class Callout {
   constructor(node, configs) {
     this.node = node;
     this.initialConfigs = configs;
-  }
-
-  get content() {
-    return this.elem.querySelector('.content');
-  }
-
-  get ending() {
-    return this.elem.querySelector('.ending');
   }
 
   get tagId() {
@@ -116,50 +107,46 @@ class Callout {
   updateEnding() {
     let ending = this.ending;
     let node = this.node;
-    let elem = this.elem;
     let configs = this.configs;
     const { left, top } = getPosition(ending, node, configs);
-
-    elem.style.setProperty('left', null);
-    elem.style.setProperty('top', null);
-
-    if (left != null) {
-      elem.style.setProperty('left', `${left}px`);
-    }
-
-    if (top != null) {
-      elem.style.setProperty('top', `${top}px`);
-    }
+    ending.style.setProperty('left', `${left}px`);
+    ending.style.setProperty('top', `${top}px`);
   }
 
   updateContent() {
-    this.reset();
+    // this.reset();
     let configs = this.configs;
     let content = this.content;
-    const r = content.getBoundingClientRect();
+    let ending = this.ending;
+    const e = ending.getBoundingClientRect();
     const w = document.body.getBoundingClientRect().width;
 
-    let top = configs['callout-top'];
-    let left = configs['callout-left'];
+    let top = Number.parseFloat(configs['callout-top']);
+    let left = Number.parseFloat(configs['callout-left']);
 
-    if (left) {
-      content.style.setProperty('left', left);
+    if (typeof left !== 'number' || isNaN(left)) {
+      left = Number.parseFloat(ending.style.getPropertyValue('left')) + 20;
     }
-    if (top) {
-      content.style.setProperty('top', top);
+    if (typeof top !== 'number' || isNaN(top)) {
+      top = Number.parseFloat(ending.style.getPropertyValue('top')) + 50;
     }
 
     let rect = content.getBoundingClientRect();
-    if (rect.right > w) {
-      const p = this.elem.getBoundingClientRect().left;
-      moveBy(content, { x: w - rect.right - p, y: 0 });
+    if (left + rect.width >= w - 10) {
+      left = w - rect.width - 10;
     }
+
+    content.style.setProperty('left', left + 'px');
+    content.style.setProperty('top', top+ 'px');
   }
 
   reset() {
     let content = this.content;
+    let ending = this.ending;
     content.style.setProperty('left', null);
     content.style.setProperty('top', null);
+    ending.style.setProperty('left', null);
+    ending.style.setProperty('top', null);
   }
 
   update() {
@@ -183,16 +170,17 @@ class Callout {
     let configs = this.configs;
 
     node.classList.add('annotated');
-    this.elem = createElement(node, configs);
-    let content = this.content;
+    let { content, ending } = createElements(node, configs);
+    this.content = content;
+    this.ending = ending;
 
     // content dragging
-    let requestUpdate = debounce(() => this.update());
     enableDrag(content, {
       ondrop: () => {
+        let r = content.getBoundingClientRect();
         this.saveState({
-          'callout-left': (content.offsetLeft + 10) + 'px',
-          'callout-top': (content.offsetTop + 10) + 'px'
+          'callout-left': (r.left + 10) + 'px',
+          'callout-top': (r.top + 10) + 'px'
         });
         this.callouts.update();
       },
@@ -202,7 +190,7 @@ class Callout {
     let origin = {};
     // ending dragging
     enableDrag(this.ending, {
-      onstart: ()=> {
+      onstart: () => {
         let configs = this.configs;
         let mt = configs['margin-top'] || '0px';
         let ml = configs['margin-left'] || '0px';
@@ -211,16 +199,19 @@ class Callout {
         origin.x = ml;
         origin.y = mt;
       },
-      ondrop: (delta) => {
+      ondrop: delta => {
         let ending = this.ending;
+        let content = this.content;
+        let r = content.getBoundingClientRect();
         let mt = this.initialConfigs['margin-top'] || '0px';
         let ml = this.initialConfigs['margin-left'] || '0px';
         mt = Number.parseFloat(mt);
         ml = Number.parseFloat(ml);
-        console.log(mt + delta.x);
         this.saveState({
-          'margin-left': (ml + delta.x) + 'px',
-          'margin-top': (mt + delta.y) + 'px'
+          'margin-left': ml + delta.x + 'px',
+          'margin-top': mt + delta.y + 'px',
+          'callout-left': r.left,
+          'callout-top': r.top,
         });
       },
       ondrag: () => this.updateArc()
@@ -250,7 +241,7 @@ class CalloutCollection {
   }
 
   updatePositions() {
-    const contents = document.querySelectorAll('.callout .content');
+    const contents = document.querySelectorAll('.callouts .content');
     removeOverlaps(contents);
     this.callouts.forEach(callout => callout.updateArc());
   }

@@ -2,35 +2,35 @@ export default function enableDrag(elem, events) {
   let drag = false;
   let origin;
   let position;
-  elem.style.setProperty('position', 'absolute');
   elem.addEventListener('mousedown', evt => {
     drag = true;
     origin = {
       x: evt.screenX,
       y: evt.screenY
     };
+    let r = elem.getBoundingClientRect();
     position = {
-      x: elem.offsetLeft,
-      y: elem.offsetTop
+      x: r.left,
+      y: r.top
     };
     if (!!events && events.onstart) events.onstart(origin);
   });
   document.body.addEventListener('mousemove', evt => {
     if (drag) {
       let delta = {
-        x: evt.screenX - origin.x + position.x,
-        y: evt.screenY - origin.y + position.y
+        x: evt.screenX - origin.x,
+        y: evt.screenY - origin.y
       };
-      elem.style.setProperty('left', `${delta.x}px`);
-      elem.style.setProperty('top', `${delta.y}px`);
+      elem.style.setProperty('left', `${position.x + delta.x}px`);
+      elem.style.setProperty('top', `${position.y + delta.y}px`);
       if (!!events && events.ondrag) events.ondrag(delta);
     }
   });
   document.body.addEventListener('mouseup', evt => {
     if (drag) {
       let delta = {
-        x: evt.screenX - origin.x + position.x,
-        y: evt.screenY - origin.y + position.y
+        x: evt.screenX - origin.x,
+        y: evt.screenY - origin.y
       };
       if (!!events && events.ondrop) events.ondrop(delta);
       drag = false;

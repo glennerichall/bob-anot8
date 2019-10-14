@@ -1,18 +1,27 @@
-.callout {
-  user-select: none;
+.callouts {
   position: absolute;
-  width: 100%;
+  top: 0;
+  left: 0;
+  width: 150%;
 }
-.callout.bordered {
+
+.callouts * {
+  user-select: none;
+}
+
+.callouts .bordered {
   border: 1px solid black;
 }
-.callout.css {
+
+.callouts .css.content {
   counter-increment: callout-css;
 }
-.callout.html {
+
+.callouts .html.content {
   counter-increment: callout-html;
 }
-.callout .content {
+
+.callouts .content {
   border: 1px dashed black;
   background: white;
   padding: 2px 4px 2px 4px;
@@ -22,11 +31,13 @@
   cursor: move;
   max-width: 300px;
 }
-.callout::before,
-.callout .content {
+
+.callouts::before,
+.callouts .content {
   box-shadow: 2px 2px rgba(0, 0, 0, 0.3);
 }
-.callout .content::before {
+
+.callouts .content::before {
   position: absolute;
   top: -10px;
   left: -15px;
@@ -37,13 +48,13 @@
   border: 1px solid black;
 }
 
-.callout.css .content::before {
+.callouts .css.content::before {
   content: counter(callout-css);
   border-radius: 10px;
   background-color: lightgreen;
 }
 
-.callout.html .content::before {
+.callouts .html.content::before {
   content: counter(callout-html, lower-alpha);
   background-color: lightblue;
 }
@@ -56,7 +67,8 @@
   width: 100%;
   bottom: 0;
 }
-.callout .ending {
+
+.callouts .ending {
   position: absolute;
   width: 10px;
   height: 10px;
@@ -66,6 +78,7 @@
   background: white;
   cursor: move;
 }
-.callout.css .ending {
+
+.callouts .css.ending {
   border-radius: 5px;
 }
