@@ -13,6 +13,7 @@
   "dependencies": {
     "file-saver": "^2.0.2",
     "svg.js": "^2.7.1",
+    "vkbeautify": "^0.99.3",
     "webcola": "^3.4.0"
   },
   "devDependencies": {

@@ -1,5 +1,25 @@
 import { normalize } from './normalize.js';
 
+let getIterator = root =>
+  document.createNodeIterator(
+    root,
+    NodeFilter.SHOW_ALL,
+    node => {
+      // accept only comments (type == 8) containt tag
+      if (node.nodeType == 8) {
+        return node.nodeValue.includes(tag)
+          ? NodeFilter.FILTER_ACCEPT
+          : NodeFilter.FILTER_REJECT;
+      }
+      // reject pure text nodes
+      if (node.nodeType == 3) {
+        return NodeFilter.FILTER_REJECT;
+      }
+      return NodeFilter.FILTER_ACCEPT;
+    },
+    false
+  );
+
 // -------------------------------------
 export function parseMessage(node, message) {
   let regexCss = /\$css\(([^)]*)\)/g;
@@ -31,24 +51,7 @@ export function getTargets(rootElem) {
   var targets = [];
 
   // Fourth argument, which is actually obsolete according to the DOM4 standard, is required in IE 11
-  var iterator = document.createNodeIterator(
-    rootElem,
-    NodeFilter.SHOW_ALL,
-    node => {
-      // accept only comments (type == 8) containt tag
-      if (node.nodeType == 8) {
-        return node.nodeValue.includes(tag)
-          ? NodeFilter.FILTER_ACCEPT
-          : NodeFilter.FILTER_REJECT;
-      }
-      // reject pure text nodes
-      if (node.nodeType == 3) {
-        return NodeFilter.FILTER_REJECT;
-      }
-      return NodeFilter.FILTER_ACCEPT;
-    },
-    false
-  );
+  var iterator = getIterator(rootElem);
 
   var curNode = iterator.nextNode();
   while (curNode) {
@@ -63,4 +66,27 @@ export function getTargets(rootElem) {
     curNode = next;
   }
   return targets;
+}
+
+export function annotate(target, configs) {
+  let parent = target.parentNode;
+
+  for (let i = 1; i < parent.childNodes.length; i++) {
+    let current = parent.childNodes[i];
+    let previous = parent.childNodes[i - 1];
+    if (current == target) {
+      if (previous.previousSibling.nodeType == 8 && previous.previousSibling.nodeValue.includes(tag)) {
+        let data = JSON.parse(previous.previousSibling.nodeValue.replace(tag, ''));
+        data.push(configs);
+        data = tag + JSON.stringify(data, null, 2);
+        previous.previousSibling.nodeValue = data;
+      } else {
+        let data = tag + '[\n' + JSON.stringify(configs, null, 2) + '\n]';
+        let annotation = document.createComment(data);
+        let newLine = document.createTextNode('\n');
+        parent.insertBefore(newLine, target);
+        parent.insertBefore(annotation, newLine);
+      }
+    }
+  }
 }

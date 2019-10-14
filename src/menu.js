@@ -5,6 +5,7 @@ import { debounce } from './utils.js';
 import { resizeFull } from './positionning.js';
 import { createImage } from './images.js';
 import { saveAs } from 'file-saver';
+// import { xml as beautify } from 'vkbeautify';
 
 import logo_calma from './logo_calma.svg';
 import printImg from './printer.svg';
@@ -38,7 +39,6 @@ export function menu(callouts) {
   version.innerText = process.env.version;
   menu.appendChild(version);
 
-
   // Print action
   let requestedFromMenu = false;
   let print = createButton(menu);
@@ -67,9 +67,28 @@ export function menu(callouts) {
   download.innerText = 'Télécharger';
   createImage(download, fileImg);
   download.onclick = () => {
+    callouts.reinsert();
+    let xml = new XMLSerializer().serializeToString(document);
+    xml = xml.replace(' xmlns="http://www.w3.org/1999/xhtml"', '');
+    var clone = new DOMParser().parseFromString(xml, 'text/html');
+    clone
+      .querySelectorAll('.callout,.menu,.dummy,.connectors,#SvgjsSvg1001')
+      .forEach(elem => elem.remove());
+    let scripts = clone.querySelectorAll('script');
+    Array.from(scripts).forEach(script => {
+      let previous = script.previousSibling;
+      while(!!previous && previous.nodeType!=8) previous = previous.previousSibling;
+      if(!!previous && previous.nodeValue.includes('Code injected by live-server')) {
+        script.remove();
+        previous.remove();
+      };
+    });
+
+    xml = new XMLSerializer().serializeToString(clone);
+    // xml = beautify(xml);
     var url = window.location.pathname;
     var filename = url.substring(url.lastIndexOf('/')+1);
-    var file = new File(['Hello, world!'], filename, {
+    var file = new File([xml], filename, {
       type: 'text/html;charset=utf-8'
     });
     saveAs(file);

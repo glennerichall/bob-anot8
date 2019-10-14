@@ -1,14 +1,15 @@
 import { debounce } from './utils.js';
-import { parseMessage } from './targets.js';
+import { parseMessage, annotate } from './targets.js';
 import getPosition, { moveBy, removeOverlaps } from './positionning.js';
 import enableDrag from './drag.js';
 import * as SVG from 'svg.js';
-import './callout.css';
+import style from './callout.css';
 
 let connectors = document.createElement('div');
 connectors.classList.add('connectors', 'resize-to-body');
 connectors.id = 'connectors';
 document.body.appendChild(connectors);
+// style.use();
 
 let draw;
 document.addEventListener('DOMContentLoaded', () => {
@@ -21,6 +22,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // draw = SVG()
   //   .addTo('#connectors')
   //   .size('100%', '100%');
+
+  style.id = 'bob';
 });
 
 function createElement(node, config) {
@@ -222,6 +225,13 @@ class Callout {
 
     return true;
   }
+
+  reinsert() {
+    let configs = this.configs;
+    let node = this.node;
+    node.classList.remove('annotated');
+    annotate(node, configs);
+  }
 }
 
 class CalloutCollection {
@@ -250,6 +260,11 @@ class CalloutCollection {
 
   forEach(callback) {
     this.callouts.forEach(callback);
+  }
+
+  reinsert() {
+    this.callouts.forEach(callout => callout.reinsert());
+    // document.querySelectorAll('.callout').forEach(node=>node.remove());
   }
 }
 
