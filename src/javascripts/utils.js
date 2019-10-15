@@ -55,42 +55,6 @@ export function debounce(f) {
   };
 }
 
-export function events(elem) {
-  let type;
-  let n = Infinity;
-  let add = listener => nthEventListener(n, elem, type, listener);
-  let times = {
-    set once(listener) {
-      n = 1;
-      add(listener);
-    },
-    times: m => {
-      n = m;
-      return add;
-    },
-    to: add
-  };
-  return {
-    get click() {
-      type = 'click';
-      return times;
-    },
-    get transitionend() {
-      type = 'transitionend';
-      return times;
-    },
-    get dblclick() {
-      type = 'dblclick';
-      return times;
-    },
-
-    set dblclick(listener) {
-      type = 'dblclick';
-      add(listener);
-    }
-  };
-}
-
 export function nthEventListener(n, elem, type, listener) {
   let count = 0;
   let callback = evt => {
@@ -103,4 +67,28 @@ export function nthEventListener(n, elem, type, listener) {
 
 export function once(elem, type, listener) {
   nthEventListener(1, elem, type, listener);
+}
+
+export function bounds(elem) {
+  let bounds = elem.getBoundingClientRect();
+  return {
+    get top() {
+      return bounds.top + window.scrollY;
+    },
+    get left() {
+      return bounds.left + window.scrollX;
+    },
+    get width() {
+      return bounds.width;
+    },
+    get height() {
+      return bounds.height;
+    },
+    get right() {
+      return bounds.right + window.scrollX;
+    },
+    get bottom() {
+      return bounds.bottom + window.scrollY;
+    }
+  };
 }

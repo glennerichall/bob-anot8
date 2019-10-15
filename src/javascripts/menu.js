@@ -11,7 +11,7 @@ import trashImg from '../images/trash.svg';
 import plusImg from '../images/plus.svg';
 import Actions from './actions.js';
 
-export function menu(callouts) {
+export function menu(callouts, actions) {
   // add menu bar
   let menu = document.createElement('div');
   menu.classList.add('menu');
@@ -33,7 +33,6 @@ export function menu(callouts) {
       callouts.forEach(callout => callout.elem.classList.remove('bordered'));
   }
 
-  let actions = new Actions(callouts);
 
   function addButton(text, image, action) {
     let btn = createButton(menu);
@@ -63,5 +62,4 @@ export function menu(callouts) {
     return false;
   };
 
-  actions.requestUpdate();
 }

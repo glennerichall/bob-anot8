@@ -1,11 +1,12 @@
 import { Rectangle, removeOverlaps as rmvOverlaps } from 'webcola';
+import { bounds } from './utils.js';
 
 const value = v => Number.parseFloat(v.replace('px'));
 const cssV = css => ((css.v = name => value(css[name])), css);
 const computedStyle = target => cssV(getComputedStyle(target));
 
 function getSnapLocation(target, configs) {
-  var rect = target.getBoundingClientRect();
+  var rect = bounds(target);
   var css = computedStyle(target);
 
   configs = configs || {};
@@ -81,7 +82,8 @@ function getSnapLocation(target, configs) {
   } else if (hsnap == 'content') {
     left = rect.left;
     hdelta.left = css.v('border-left-width') + css.v('padding-left');
-    hdelta.right = rect.width - css.v('border-right-width') - css.v('padding-right');
+    hdelta.right =
+      rect.width - css.v('border-right-width') - css.v('padding-right');
     hdelta.center = rect.width / 2;
   } else if (hsnap == 'padding-right') {
     left = rect.right;
@@ -111,7 +113,7 @@ function getSnapLocation(target, configs) {
 }
 
 function getMargin(target, configs) {
-  var rect = target.getBoundingClientRect();
+  var rect = bounds(target);
 
   configs = configs || {};
   configs = {
@@ -148,7 +150,7 @@ function getMargin(target, configs) {
 }
 
 function getAnchorDelta(target, configs) {
-  var rect = target.getBoundingClientRect();
+  var rect = bounds(target);
 
   configs = configs || {};
   configs = {
@@ -201,7 +203,7 @@ export function getRects(nodes) {
   let i = 0;
   const margin = 10;
   let rects = Array.from(nodes).map(node => {
-    let rect = node.getBoundingClientRect();
+    let rect = bounds(node);
     // epsilon values because of bug in cola: https://github.com/tgdwyer/WebCola/issues/279
     let j = Number.EPSILON * 500 * i++;
     return new Rectangle(
@@ -215,9 +217,7 @@ export function getRects(nodes) {
 }
 
 export function applyRects(nodes, rects) {
-  let parents = Array.from(nodes).map(node =>
-    node.parentNode.getBoundingClientRect()
-  );
+  let parents = Array.from(nodes).map(node => bounds(node.parentNode));
 
   for (let i = 0; i < nodes.length; i++) {
     nodes[i].style.setProperty('left', `${rects[i].x - parents[i].left}px`);
@@ -226,7 +226,7 @@ export function applyRects(nodes, rects) {
 }
 
 export function resizeFull(elem) {
-  let r = document.body.getBoundingClientRect();
+  let r = bounds(document.body);
   let css = getComputedStyle(document.body);
 
   var value = v => Number.parseFloat(v.replace('px'));
@@ -264,7 +264,7 @@ export function removeOverlaps(nodes, anchors) {
 // }
 
 export function moveBy(node, delta) {
-  const r = node.getBoundingClientRect();
+  const r = bounds(node);
 
   node.style.setProperty('left', `${r.left + delta.x}px`);
   //   node.style.setProperty('top', `${r.top + delta.y}px`);

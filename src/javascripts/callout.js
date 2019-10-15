@@ -1,4 +1,4 @@
-import { debounce, events } from './utils.js';
+import { bounds } from './utils.js';
 import { parseMessage, annotate } from './targets.js';
 import getPosition, { moveBy, removeOverlaps } from './positionning.js';
 import enableDrag from './drag.js';
@@ -7,6 +7,7 @@ import '../css/callout.css';
 import saveImg from '../images/save.svg';
 import { createImage } from './images.js';
 import { createButton } from './buttons.js';
+import { events } from './events.js';
 
 let draw;
 document.addEventListener('DOMContentLoaded', () => {
@@ -28,6 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // version 2
   draw = SVG('connectors').size('100%', '100%');
+  console.log('callouts elements ready');
 
   // version 3.
   // draw = SVG()
@@ -50,8 +52,8 @@ function createElements(node, configs) {
 }
 
 function updateLine(line, a, b) {
-  let r1 = a.getBoundingClientRect();
-  let r2 = b.getBoundingClientRect();
+  let r1 = bounds(a);
+  let r2 = bounds(b);
   return line.plot(
     r1.left + r1.width / 2,
     r1.top + r1.height / 2,
@@ -61,8 +63,8 @@ function updateLine(line, a, b) {
 }
 
 function connect(a, b) {
-  let r1 = a.getBoundingClientRect();
-  let r2 = b.getBoundingClientRect();
+  let r1 = bounds(a);
+  let r2 = bounds(b);
   return draw
     .line(
       r1.left + r1.width / 2,
@@ -219,54 +221,42 @@ class Callout {
       isEditing = false;
     });
 
-    // content dragging
-    enableDrag(content, {
-      ondrop: delta => {
-        if (delta.x == 0 && delta.y == 0) return;
-        let r = content.getBoundingClientRect();
-        this.saveState({
-          'callout-left': r.left + 10 + 'px',
-          'callout-top': r.top + 10 + 'px'
-        });
-        this.callouts.update();
-      },
-      ondrag: () => {
-        this.updateArc();
-        return canDrag;
-      }
-    });
+    enableDrag(content);
+    enableDrag(ending);
 
-    let origin = {};
-    // ending dragging
-    enableDrag(this.ending, {
-      onstart: () => {
-        let configs = this.configs;
-        let mt = configs['margin-top'] || '0px';
-        let ml = configs['margin-left'] || '0px';
-        mt = Number.parseFloat(mt);
-        ml = Number.parseFloat(ml);
-        origin.x = ml;
-        origin.y = mt;
-      },
-      ondrop: delta => {
-        let ending = this.ending;
-        let content = this.content;
-        let r = content.getBoundingClientRect();
-        let mt = this.initialConfigs['margin-top'] || '0px';
-        let ml = this.initialConfigs['margin-left'] || '0px';
-        mt = Number.parseFloat(mt);
-        ml = Number.parseFloat(ml);
-        this.saveState({
-          'margin-left': ml + delta.x + 'px',
-          'margin-top': mt + delta.y + 'px',
-          'callout-left': r.left,
-          'callout-top': r.top
-        });
-      },
-      ondrag: () => {
-        this.updateArc();
-      }
-    });
+    // content dragging
+    events(content).drop = evt => {
+      let {delta} = evt.detail;
+      if (delta.x == 0 && delta.y == 0) return;
+      let r = bounds(content);
+      this.saveState({
+        'callout-left': r.left + 10 + 'px',
+        'callout-top': r.top + 10 + 'px'
+      });
+      this.callouts.update();
+    };
+
+    events(content).drag = () => {
+      this.updateArc();
+      return canDrag;
+    };
+
+    events(ending).drop = evt => {
+      let r = bounds(content);
+      let mt = this.configs['margin-top'] || '0px';
+      let ml = this.configs['margin-left'] || '0px';
+      mt = Number.parseFloat(mt);
+      ml = Number.parseFloat(ml);
+      let {delta} = evt.detail;
+      this.saveState({
+        'margin-left': ml + delta.x + 'px',
+        'margin-top': mt + delta.y + 'px',
+        'callout-left': r.left,
+        'callout-top': r.top
+      });
+    };
+
+    events(ending).drag = () => this.updateArc();
 
     return true;
   }
