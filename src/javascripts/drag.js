@@ -21,9 +21,10 @@ export default function enableDrag(elem, events) {
         x: evt.screenX - origin.x,
         y: evt.screenY - origin.y
       };
+      if (!!events && events.ondrag) drag = events.ondrag(delta);
+      if(!drag) return;
       elem.style.setProperty('left', `${position.x + delta.x}px`);
       elem.style.setProperty('top', `${position.y + delta.y}px`);
-      if (!!events && events.ondrag) events.ondrag(delta);
     }
   });
   document.body.addEventListener('mouseup', evt => {

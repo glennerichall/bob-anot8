@@ -53,6 +53,7 @@ export default class Actions {
     this.callouts = callouts;
 
     this.requestUpdate = debounce(() => {
+      console.log('update requested');
       let elems = document.querySelectorAll('.resize-to-body');
       Array.from(elems).forEach(elem => resizeFull(elem));
       this.callouts.update();

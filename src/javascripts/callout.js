@@ -1,9 +1,12 @@
-import { debounce } from './utils.js';
+import { debounce, events } from './utils.js';
 import { parseMessage, annotate } from './targets.js';
 import getPosition, { moveBy, removeOverlaps } from './positionning.js';
 import enableDrag from './drag.js';
 import * as SVG from 'svg.js';
 import '../css/callout.css';
+import saveImg from '../images/save.svg';
+import { createImage } from './images.js';
+import { createButton } from './buttons.js';
 
 let draw;
 document.addEventListener('DOMContentLoaded', () => {
@@ -17,6 +20,11 @@ document.addEventListener('DOMContentLoaded', () => {
   callouts.classList.add('callouts', 'resize-to-body');
   callouts.id = 'callouts';
   document.body.appendChild(callouts);
+
+  let mask = document.createElement('div');
+  mask.id = 'mask';
+  mask.classList.add('mask', 'resize-to-body');
+  document.body.appendChild(mask);
 
   // version 2
   draw = SVG('connectors').size('100%', '100%');
@@ -137,7 +145,7 @@ class Callout {
     }
 
     content.style.setProperty('left', left + 'px');
-    content.style.setProperty('top', top+ 'px');
+    content.style.setProperty('top', top + 'px');
   }
 
   reset() {
@@ -174,17 +182,58 @@ class Callout {
     this.content = content;
     this.ending = ending;
 
+    let canDrag = true;
+    let isEditing = false;
+
+    let mask = document.getElementById('mask');
+    let editor;
+    events(content).dblclick = () => {
+      if (isEditing) return;
+      isEditing = true;
+      canDrag = false;
+      content.classList.add('editing');
+      ending.classList.add('editing');
+      node.classList.add('editing');
+      editor = document.createElement('textarea');
+      editor.classList.add('editor');
+      content.appendChild(editor);
+      editor.textContent = JSON.stringify(this.configs, null, 2);
+      mask.classList.add('visible');
+      setTimeout(() => editor.classList.add('show'));
+      events(editor).transitionend.once = () => console.log('to');
+    };
+
+    mask.addEventListener('click', () => {
+      if (!isEditing) return;
+      content.classList.remove('editing');
+      ending.classList.remove('editing');
+      node.classList.remove('editing');
+
+      editor.style.setProperty(
+        'transition',
+        'width 0.5s, height 0.5s, opacity 0.5s'
+      );
+      editor.style.setProperty('width', '0px');
+      editor.classList.remove('show');
+      mask.classList.remove('visible');
+      isEditing = false;
+    });
+
     // content dragging
     enableDrag(content, {
-      ondrop: () => {
+      ondrop: delta => {
+        if (delta.x == 0 && delta.y == 0) return;
         let r = content.getBoundingClientRect();
         this.saveState({
-          'callout-left': (r.left + 10) + 'px',
-          'callout-top': (r.top + 10) + 'px'
+          'callout-left': r.left + 10 + 'px',
+          'callout-top': r.top + 10 + 'px'
         });
         this.callouts.update();
       },
-      ondrag: () => this.updateArc()
+      ondrag: () => {
+        this.updateArc();
+        return canDrag;
+      }
     });
 
     let origin = {};
@@ -211,10 +260,12 @@ class Callout {
           'margin-left': ml + delta.x + 'px',
           'margin-top': mt + delta.y + 'px',
           'callout-left': r.left,
-          'callout-top': r.top,
+          'callout-top': r.top
         });
       },
-      ondrag: () => this.updateArc()
+      ondrag: () => {
+        this.updateArc();
+      }
     });
 
     return true;
@@ -247,6 +298,7 @@ class CalloutCollection {
   }
 
   update() {
+    console.log('updating callouts');
     this.callouts.forEach(callout => callout.update());
     this.updatePositions();
   }

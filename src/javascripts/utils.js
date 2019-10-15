@@ -54,3 +54,53 @@ export function debounce(f) {
     // return () => requestAnimationFrame(f);
   };
 }
+
+export function events(elem) {
+  let type;
+  let n = Infinity;
+  let add = listener => nthEventListener(n, elem, type, listener);
+  let times = {
+    set once(listener) {
+      n = 1;
+      add(listener);
+    },
+    times: m => {
+      n = m;
+      return add;
+    },
+    to: add
+  };
+  return {
+    get click() {
+      type = 'click';
+      return times;
+    },
+    get transitionend() {
+      type = 'transitionend';
+      return times;
+    },
+    get dblclick() {
+      type = 'dblclick';
+      return times;
+    },
+
+    set dblclick(listener) {
+      type = 'dblclick';
+      add(listener);
+    }
+  };
+}
+
+export function nthEventListener(n, elem, type, listener) {
+  let count = 0;
+  let callback = evt => {
+    count++;
+    listener(evt);
+    if (count >= n) elem.removeEventListener(type, callback);
+  };
+  elem.addEventListener(type, callback);
+}
+
+export function once(elem, type, listener) {
+  nthEventListener(1, elem, type, listener);
+}

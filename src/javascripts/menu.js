@@ -8,7 +8,6 @@ import logo_calma from '../images/logo_calma.svg';
 import printImg from '../images/printer.svg';
 import fileImg from '../images/file.svg';
 import trashImg from '../images/trash.svg';
-import saveImg from '../images/save.svg';
 import plusImg from '../images/plus.svg';
 import Actions from './actions.js';
 
