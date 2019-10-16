@@ -42,3 +42,8 @@ export function events(elem) {
     return obj;
   }, {});
 }
+
+
+export function onReady(listener){
+  document.addEventListener('DOMContentLoaded', listener);
+}

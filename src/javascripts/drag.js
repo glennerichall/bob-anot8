@@ -1,4 +1,4 @@
-import { bounds } from './utils.js';
+import { bounds } from './bounds';
 import { events } from './events';
 
 export default function drag(elem) {
@@ -17,7 +17,10 @@ export default function drag(elem) {
       x: r.left,
       y: r.top
     };
-    var event = new CustomEvent('startDrag', { detail: {origin} });
+    var event = new CustomEvent('startDrag', {
+      detail: { origin },
+      cancelable: true
+    });
     elem.dispatchEvent(event);
   };
 
@@ -28,12 +31,18 @@ export default function drag(elem) {
         y: evt.screenY - origin.y
       };
 
-      var event = new CustomEvent('drag', { detail: {delta} });
+      var event = new CustomEvent('drag', {
+        detail: { delta },
+        cancelable: true
+      });
       elem.dispatchEvent(event);
-
-      if (!drag) return;
-      elem.style.setProperty('left', `${position.x + delta.x}px`);
-      elem.style.setProperty('top', `${position.y + delta.y}px`);
+      if (event.defaultPrevented) {
+        drag = false;
+        return;
+      }
+      bounds(elem)
+        .setLeft(position.x + delta.x)
+        .setTop(position.y + delta.y);
     }
   };
 
@@ -44,7 +53,7 @@ export default function drag(elem) {
         y: evt.screenY - origin.y
       };
 
-      var event = new CustomEvent('drop', { detail: {delta} });
+      var event = new CustomEvent('drop', { detail: { delta } });
       elem.dispatchEvent(event);
 
       drag = false;

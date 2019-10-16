@@ -1,5 +1,5 @@
 import { Rectangle, removeOverlaps as rmvOverlaps } from 'webcola';
-import { bounds } from './utils.js';
+import { bounds } from "./bounds";
 
 const value = v => Number.parseFloat(v.replace('px'));
 const cssV = css => ((css.v = name => value(css[name])), css);
@@ -102,7 +102,13 @@ function getSnapLocation(target, configs) {
     // TODO calculate for text-alignment
     hdelta.right = target.innerText.width(font, weight);
     hdelta.center = hdelta.right / 2;
-  } else {
+  } else if(hsnap == 'margin-right'){
+    left = rect.right;
+    hdelta.right = css.v('margin-right');
+    hdelta.center = css.v('margin-right')/2;
+  }
+  
+  else {
     console.error(`unknown value for 'horizontal-snap': ${hsnap}`);
   }
 

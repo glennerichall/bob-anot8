@@ -1,3 +1,7 @@
+:root {
+  --duration : 0.5s;
+}
+
 .callouts {
   position: absolute;
   top: 0;
@@ -13,7 +17,7 @@
   position: absolute;
   top: 0;
   left: 0;
-  transition: background-color 0.5s;
+  transition: background-color var(--duration);
 }
 
 #mask.visible {
@@ -21,32 +25,54 @@
   background-color: rgba(125, 125, 125, 0.9);
 }
 
+#mask.hiding {
+  visibility: visible;
+}
+
 .callouts .editor {
   user-select: inherit;
   box-sizing: border-box;
   height: 0px;
-  width: 100%;
   opacity: 0;
   overflow-y: scroll;
-  resize: horizontal;
-  transition: height 0.5s, opacity 0.5s;
-  display: block;
+  resize: both;
+  transition: height var(--duration), opacity var(--duration);
+  display: inline-block;
+  position: absolute;
+  z-index: 1000;
+  min-width: 300px;
 }
 
 .callouts .editor.show {
-  height: 300px;
+  height: 200px;
   opacity: 1;
+}
+
+.annotated {
+  transition: box-shadow var(--duration);
 }
 
 .editing {
   cursor: inherit;
   z-index: 1000;
-  position: relative;
-  box-shadow: 0px 0px 20px red;
-  transition: box-shadow 0.5s;
 }
 
-body.editing {
+.hiding {
+  cursor: inherit;
+  z-index: 1000;
+}
+
+.annotated.hiding {
+  position: relative;
+}
+
+.annotated.editing {
+  position: relative;
+  box-shadow: 0px 0px 20px red;
+}
+
+body.annotated.hiding,
+body.annotated.editing {
   position: inherit;
 }
 
@@ -55,10 +81,6 @@ body.editing {
   cursor: inherit;
   position: inherit;
   box-shadow: inherit;
-}
-
-.callouts .content.editing {
-  max-width: inherit;
 }
 
 .callouts * {
@@ -86,6 +108,7 @@ body.editing {
   left: 50px;
   cursor: move;
   max-width: 300px;
+  text-align: left;
 }
 
 .callouts::before,
@@ -94,7 +117,7 @@ body.editing {
 }
 
 .callouts .content::before {
-  position: absolute;
+  position: relative;
   top: -10px;
   left: -15px;
   width: 20px;
@@ -102,6 +125,8 @@ body.editing {
   text-align: center;
   background: white;
   border: 1px solid black;
+  display: inline-block;
+  margin-right: -13px;
 }
 
 .callouts .css.content::before {

@@ -1,4 +1,4 @@
-import { bounds } from './utils.js';
+import { bounds } from './bounds';
 import { parseMessage, annotate } from './targets.js';
 import getPosition, { moveBy, removeOverlaps } from './positionning.js';
 import enableDrag from './drag.js';
@@ -7,10 +7,11 @@ import '../css/callout.css';
 import saveImg from '../images/save.svg';
 import { createImage } from './images.js';
 import { createButton } from './buttons.js';
-import { events } from './events.js';
+import { events, onReady } from './events.js';
+import addEditor from './editor';
 
 let draw;
-document.addEventListener('DOMContentLoaded', () => {
+onReady(() => {
   // is used to draw callout lines
   let connectors = document.createElement('div');
   connectors.classList.add('connectors', 'resize-to-body');
@@ -22,14 +23,8 @@ document.addEventListener('DOMContentLoaded', () => {
   callouts.id = 'callouts';
   document.body.appendChild(callouts);
 
-  let mask = document.createElement('div');
-  mask.id = 'mask';
-  mask.classList.add('mask', 'resize-to-body');
-  document.body.appendChild(mask);
-
   // version 2
   draw = SVG('connectors').size('100%', '100%');
-  console.log('callouts elements ready');
 
   // version 3.
   // draw = SVG()
@@ -119,12 +114,12 @@ class Callout {
     let node = this.node;
     let configs = this.configs;
     const { left, top } = getPosition(ending, node, configs);
-    ending.style.setProperty('left', `${left}px`);
-    ending.style.setProperty('top', `${top}px`);
+    bounds(ending)
+      .setLeft(left)
+      .setTop(top);
   }
 
   updateContent() {
-    // this.reset();
     let configs = this.configs;
     let content = this.content;
     let ending = this.ending;
@@ -135,28 +130,29 @@ class Callout {
     let left = Number.parseFloat(configs['callout-left']);
 
     if (typeof left !== 'number' || isNaN(left)) {
-      left = Number.parseFloat(ending.style.getPropertyValue('left')) + 20;
+      left = bounds(ending).left + 20;
     }
     if (typeof top !== 'number' || isNaN(top)) {
-      top = Number.parseFloat(ending.style.getPropertyValue('top')) + 50;
+      top = bounds(ending).top + 50;
     }
 
-    let rect = content.getBoundingClientRect();
+    let rect = bounds(content);
     if (left + rect.width >= w - 10) {
       left = w - rect.width - 10;
     }
 
-    content.style.setProperty('left', left + 'px');
-    content.style.setProperty('top', top + 'px');
+    bounds(content)
+      .setLeft(left)
+      .setTop(top);
   }
 
   reset() {
-    let content = this.content;
-    let ending = this.ending;
-    content.style.setProperty('left', null);
-    content.style.setProperty('top', null);
-    ending.style.setProperty('left', null);
-    ending.style.setProperty('top', null);
+    bounds(this.content)
+      .setLeft(null)
+      .setTop(null);
+    bounds(this.ending)
+      .setLeft(null)
+      .setTop(null);
   }
 
   update() {
@@ -184,79 +180,7 @@ class Callout {
     this.content = content;
     this.ending = ending;
 
-    let canDrag = true;
-    let isEditing = false;
-
-    let mask = document.getElementById('mask');
-    let editor;
-    events(content).dblclick = () => {
-      if (isEditing) return;
-      isEditing = true;
-      canDrag = false;
-      content.classList.add('editing');
-      ending.classList.add('editing');
-      node.classList.add('editing');
-      editor = document.createElement('textarea');
-      editor.classList.add('editor');
-      content.appendChild(editor);
-      editor.textContent = JSON.stringify(this.configs, null, 2);
-      mask.classList.add('visible');
-      setTimeout(() => editor.classList.add('show'));
-      events(editor).transitionend.once = () => console.log('to');
-    };
-
-    mask.addEventListener('click', () => {
-      if (!isEditing) return;
-      content.classList.remove('editing');
-      ending.classList.remove('editing');
-      node.classList.remove('editing');
-
-      editor.style.setProperty(
-        'transition',
-        'width 0.5s, height 0.5s, opacity 0.5s'
-      );
-      editor.style.setProperty('width', '0px');
-      editor.classList.remove('show');
-      mask.classList.remove('visible');
-      isEditing = false;
-    });
-
-    enableDrag(content);
-    enableDrag(ending);
-
-    // content dragging
-    events(content).drop = evt => {
-      let {delta} = evt.detail;
-      if (delta.x == 0 && delta.y == 0) return;
-      let r = bounds(content);
-      this.saveState({
-        'callout-left': r.left + 10 + 'px',
-        'callout-top': r.top + 10 + 'px'
-      });
-      this.callouts.update();
-    };
-
-    events(content).drag = () => {
-      this.updateArc();
-      return canDrag;
-    };
-
-    events(ending).drop = evt => {
-      let r = bounds(content);
-      let mt = this.configs['margin-top'] || '0px';
-      let ml = this.configs['margin-left'] || '0px';
-      mt = Number.parseFloat(mt);
-      ml = Number.parseFloat(ml);
-      let {delta} = evt.detail;
-      this.saveState({
-        'margin-left': ml + delta.x + 'px',
-        'margin-top': mt + delta.y + 'px',
-        'callout-left': r.left,
-        'callout-top': r.top
-      });
-    };
-
-    events(ending).drag = () => this.updateArc();
+    addEditor(this);
 
     return true;
   }
@@ -271,7 +195,7 @@ class Callout {
 class CalloutCollection {
   constructor(callouts) {
     this.callouts = callouts;
-    callouts.forEach(callout => (callout.callouts = this));
+    this.forEach(callout => (callout.callouts = this));
   }
 
   install() {
@@ -281,16 +205,11 @@ class CalloutCollection {
     );
   }
 
-  updatePositions() {
+  update() {
+    this.callouts.forEach(callout => callout.update());
     const contents = document.querySelectorAll('.callouts .content');
     removeOverlaps(contents);
-    this.callouts.forEach(callout => callout.updateArc());
-  }
-
-  update() {
-    console.log('updating callouts');
-    this.callouts.forEach(callout => callout.update());
-    this.updatePositions();
+    this.forEach(callout => callout.updateArc());
   }
 
   forEach(callback) {
@@ -298,7 +217,7 @@ class CalloutCollection {
   }
 
   insertInto(dom) {
-    this.callouts.forEach(callout => callout.insertInto(dom));
+    this.forEach(callout => callout.insertInto(dom));
   }
 }
 

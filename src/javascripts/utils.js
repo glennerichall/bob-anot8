@@ -68,27 +68,3 @@ export function nthEventListener(n, elem, type, listener) {
 export function once(elem, type, listener) {
   nthEventListener(1, elem, type, listener);
 }
-
-export function bounds(elem) {
-  let bounds = elem.getBoundingClientRect();
-  return {
-    get top() {
-      return bounds.top + window.scrollY;
-    },
-    get left() {
-      return bounds.left + window.scrollX;
-    },
-    get width() {
-      return bounds.width;
-    },
-    get height() {
-      return bounds.height;
-    },
-    get right() {
-      return bounds.right + window.scrollX;
-    },
-    get bottom() {
-      return bounds.bottom + window.scrollY;
-    }
-  };
-}
