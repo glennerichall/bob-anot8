@@ -1,6 +1,9 @@
 import { events, onReady } from './events.js';
 import enableDrag from './drag.js';
 import { bounds } from './bounds';
+import anime from 'animejs/lib/anime.es.js';
+import { diff } from './utils.js';
+import '../css/editor.css';
 
 let mask;
 onReady(() => {
@@ -14,62 +17,159 @@ export default function addEditor(callout) {
   const content = callout.content;
   const ending = callout.ending;
   const node = callout.node;
+  const duration = 500;
+  const easing = 'easeOutExpo';
 
   let input;
+  let output;
   let isEditing = false;
 
   events(content).dblclick = () => {
     if (isEditing) return;
     isEditing = true;
 
-    content.classList.add('editing');
-    ending.classList.add('editing');
-    node.classList.add('editing');
+    [content, ending, node].forEach(elem => elem.classList.add('editing'));
 
     input = document.createElement('textarea');
-    input.classList.add('editor');
+    input.classList.add('editor', 'input');
+
+    output = document.createElement('div');
+    output.classList.add('log', 'editor');
 
     callouts.appendChild(input);
+    callouts.appendChild(output);
+
     let rect = bounds(content);
-    bounds(input)
+
+    let bottom = bounds(input)
       .setLeft(rect.left)
       .setTop(rect.bottom)
       .setWidth(rect.width)
-      .keepInViewport();
-    input.textContent = JSON.stringify(callout.configs, null, 2);
+      .keepInViewport().bottom;
+
+    let width = bounds(input).width;
 
     mask.classList.add('visible');
-    setTimeout(() => input.classList.add('show'));
+    bounds(output)
+      .setLeft(rect.left)
+      .setTop(bottom)
+      .setWidth(width);
 
-    events(input).transitionend.once = () =>
-      input.style.setProperty('transition', 'none');
+    let resizeListener = () => {
+      let bi = bounds(input).keepInViewport();
+      if (bi.left < bounds(content).left) {
+        let vp = bounds(document.body);
+        bi.left = vp.width - bi.width;
+      } else if (bi.left > bounds(content).left) {
+        bi.left = bounds(content).left;
+      }
+      bounds(output)
+        .setLeft(bi.left)
+        .setTop(bi.bottom + 5)
+        .setWidth(bi.width);
+    };
+
+    events(input).resize = resizeListener;
+    events(input).mouseup = resizeListener;
+
+    input.value = JSON.stringify(callout.configs, null, 2);
+
+    anime({
+      targets: mask,
+      opacity: 0.9,
+      duration,
+      easing
+    });
+
+    anime({
+      targets: input,
+      height: '200px',
+      duration,
+      easing
+    });
+
+    anime({
+      targets: output,
+      height: '200px',
+      top: '+=200px',
+      duration,
+      easing
+    });
+
+    anime({
+      targets: node,
+      'box-shadow': '0px 0px 20px red',
+      duration,
+      easing
+    });
+
+    events(input).input = () => {
+      output.innerText = null;
+      try {
+        let configs = JSON.parse(input.value);
+        let initialConfigs = callout.initialConfigs;
+        let d = diff(initialConfigs, configs);
+        callout.clearStorage();
+        callout.saveState(d);
+        callout.update();
+        callout.updateArc();
+      } catch (e) {
+        output.innerText = e.message;
+      }
+    };
   };
 
   events(mask).click = () => {
     if (!isEditing) return;
-    content.classList.remove('editing');
-    ending.classList.remove('editing');
-    node.classList.remove('editing');
-    
-    mask.classList.remove('visible');
 
-    events(input).transitionend.once = () => {
-        mask.classList.remove('hiding');
-        ending.classList.remove('hiding');
-        node.classList.remove('hiding');
-        content.classList.remove('hiding');
-        input.remove();
-    }
+    [node, mask, content, ending].forEach(elem => elem.classList.add('hiding'));
 
-    mask.classList.add('hiding');
-    ending.classList.add('hiding');
-    node.classList.add('hiding');
-    content.classList.add('hiding');
+    anime({
+      targets: mask,
+      opacity: 0,
+      duration,
+      complete: () => {
+        mask.style.removeProperty('opacity');
+        mask.classList.remove('visible', 'hiding');
+      },
+      easing
+    });
 
-    input.style.removeProperty('transition');
-    input.classList.remove('show');
+    anime({
+      targets: input,
+      height: '0px',
+      opacity: 0,
+      duration,
+      complete: () => input.remove(),
+      easing
+    });
+
+    anime({
+      targets: output,
+      height: '0px',
+      top: '-=200px',
+      duration,
+      easing,
+      complete: () => output.remove()
+    });
+
+    anime({
+      targets: node,
+      'box-shadow': '0px 0px 0px red',
+      duration,
+      complete: () => {
+        node.style.removeProperty('box-shadow');
+        [node, content, ending].forEach(elem =>
+          elem.classList.remove('hiding')
+        );
+      },
+      easing
+    });
+
+    [content, ending, node].forEach(elem => elem.classList.remove('editing'));
 
     isEditing = false;
+    callout.callouts.update();
   };
 
   enableDrag(content);

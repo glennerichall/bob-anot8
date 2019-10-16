@@ -27,9 +27,14 @@ export function bounds(elem) {
       let vp = document.body.getBoundingClientRect();
       if (this.left < 0) {
         this.left = 0;
-      } else if (this.right >= vp.width) {
+      } else if (this.right > vp.width) {
         this.left = vp.width - rect.width;
       }
+      return this;
+    },
+    get isInViewport(){
+      let vp = document.body.getBoundingClientRect();
+      return this.left >=0 && this.right <= vp.width;
     },
     set width(value) {
       if (typeof value == 'number') {

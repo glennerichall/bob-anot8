@@ -74,10 +74,15 @@ class Callout {
   constructor(node, configs) {
     this.node = node;
     this.initialConfigs = configs;
+    this.type = configs.type;
   }
 
   get tagId() {
     return this.node.getAttribute('tag-id');
+  }
+
+  clearStorage(){
+    localStorage.removeItem(JSON.stringify(this.initialConfigs.id));
   }
 
   get localStorageConfigs() {
@@ -119,6 +124,19 @@ class Callout {
       .setTop(top);
   }
 
+  updateType(){
+    let ending = this.ending;
+    let content = this.content;
+    let configs = this.configs;
+    if(this.type !== configs.type){
+      content.classList.remove(this.type);
+      ending.classList.remove(this.type);
+      content.classList.add(configs.type);
+      ending.classList.add(configs.type);
+      this.type = configs.type;
+    }
+  }
+
   updateContent() {
     let configs = this.configs;
     let content = this.content;
@@ -158,6 +176,7 @@ class Callout {
   update() {
     this.updateEnding();
     this.updateContent();
+    this.updateType();
   }
 
   saveState(state) {

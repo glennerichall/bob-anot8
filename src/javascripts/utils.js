@@ -68,3 +68,31 @@ export function nthEventListener(n, elem, type, listener) {
 export function once(elem, type, listener) {
   nthEventListener(1, elem, type, listener);
 }
+
+export function diff(o1, o2) {
+  return Object.keys(o2).reduce((diff, key) => {
+    if (o1[key] === o2[key]) return diff;
+    return {
+      ...diff,
+      [key]: o2[key]
+    };
+  }, {});
+}
+
+// export function each() {
+//   let elems = Array.from(arguments);
+//   var proxy = new Proxy(
+//     {},
+//     {
+//       get: function(target, name, receiver) {
+//         let val = elems[0][name];
+//         if (typeof val == 'function') {
+//           return each(elems.map(elem => elem[name])());
+//         } else {
+//           return each(elems.map(elem => elem[name]));
+//         }
+//       }
+//     }
+//   );
+//   return proxy;
+// }
