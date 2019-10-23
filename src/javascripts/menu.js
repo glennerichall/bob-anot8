@@ -2,7 +2,8 @@ import '../css/menu.css';
 
 import { createToggleButton, createButton } from './buttons.js';
 import { createImage } from './images.js';
-// import { xml as beautify } from 'vkbeautify';
+import enableDrag from './drag.js';
+import { events } from './events.js';
 
 import logo_calma from '../images/logo_calma.svg';
 import printImg from '../images/printer.svg';
@@ -17,24 +18,28 @@ export function menu(callouts, actions) {
   menu.classList.add('menu');
   document.body.appendChild(menu);
 
+  enableDrag(menu);
+  events(menu).drag = () => {
+    menu.classList.add('dragged');
+  };
+
   // add logo
   let logo = createImage(menu, logo_calma);
   logo.id = 'calma-logo';
   menu.appendChild(logo);
 
-  if (process.env.target == 'dev') {
-    // Border toggle action
-    let toggleBorder = createToggleButton(menu);
-    toggleBorder.innerText = 'Afficher les bordures';
-    toggleBorder.classList.add('debug');
-    toggleBorder.onchecked = () =>
-      callouts.forEach(callout => callout.elem.classList.add('bordered'));
-    toggleBorder.onunchecked = () =>
-      callouts.forEach(callout => callout.elem.classList.remove('bordered'));
-  }
+  // if (process.env.target == 'dev') {
+  //   // Border toggle action
+  //   let toggleBorder = createToggleButton(menu);
+  //   toggleBorder.innerText = 'Afficher les bordures';
+  //   toggleBorder.classList.add('debug');
+  //   toggleBorder.onchecked = () =>
+  //     callouts.forEach(callout => callout.elem.classList.add('bordered'));
+  //   toggleBorder.onunchecked = () =>
+  //     callouts.forEach(callout => callout.elem.classList.remove('bordered'));
+  // }
 
-
-  function createControl(text, image, action, create){
+  function createControl(text, image, action, create) {
     let btn = create(menu);
     btn.innerText = text;
     createImage(btn, image);
@@ -70,5 +75,4 @@ export function menu(callouts, actions) {
     );
     return false;
   };
-
 }

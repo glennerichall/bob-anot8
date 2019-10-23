@@ -58,8 +58,7 @@ export default function addEditor(callout) {
     let resizeListener = () => {
       let bi = bounds(input).keepInViewport();
       if (bi.left < bounds(content).left) {
-        let vp = bounds(document.body);
-        bi.left = vp.width - bi.width;
+        bi.left = window.innerWidth - bi.width - 30;
       } else if (bi.left > bounds(content).left) {
         bi.left = bounds(content).left;
       }

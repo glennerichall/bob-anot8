@@ -24,11 +24,11 @@ export function bounds(elem) {
       return this;
     },
     keepInViewport() {
-      let vp = document.body.getBoundingClientRect();
+      let html = document.querySelector('html');
       if (this.left < 0) {
         this.left = 0;
-      } else if (this.right > vp.width) {
-        this.left = vp.width - rect.width;
+      } else if (this.right > window.innerWidth - 30) {
+        this.left = window.innerWidth - rect.width - 30;
       }
       return this;
     },

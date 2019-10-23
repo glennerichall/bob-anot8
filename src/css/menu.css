@@ -6,7 +6,7 @@
   --radius: 3px;
   --menu-spacing: 5px;
   --menu-border: 1px solid rgba(112, 112, 112, 0.5);
-  --menu-background: rgba(150, 150, 150, 0.2);
+  --menu-background: rgb(187, 226, 217);
   --version-background: rgb(150, 150, 150);
 }
 
@@ -29,6 +29,8 @@
   float: right;
   margin-right: var(--menu-spacing);
   margin-left: var(--menu-spacing);
+  user-select: none;
+  pointer-events: none;
 }
 .menu img {
   background-color: initial;
@@ -85,6 +87,14 @@
   padding: var(--menu-spacing);
   border: var(--menu-border);
   border-radius: var(--radius);
+  user-select: none;
+  font-family: initial;
+  cursor: move;
+  box-shadow: 1px 0px grey, 0px 1px black ;
+}
+
+.menu.dragged {
+  right: inherit;
 }
 
 .menu .button:hover {
