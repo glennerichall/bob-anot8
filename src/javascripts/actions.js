@@ -2,6 +2,8 @@ import printImg from '../images/printer.svg';
 import { debounce } from './utils.js';
 import { resizeFull } from './positionning.js';
 import { saveAs } from 'file-saver';
+import glass from './glass.js';
+import { bounds } from './bounds.js';
 
 function clean(dom) {
   dom
@@ -60,11 +62,6 @@ export default class Actions {
       Array.from(elems).forEach(elem => resizeFull(elem));
       this.callouts.update();
     });
-
-    // this.dropShadow = document.createElement('div');
-    // this.dropShadow.id = 'page';
-    // this.dropShadow.classList.add('resize-to-body');
-    // document.body.appendChild(this.dropShadow);
   }
 
   print() {
@@ -97,10 +94,24 @@ export default class Actions {
     let html = document.querySelector('html');
     if (html.classList.contains('page')) {
       html.classList.remove('page');
+      Array.from(document.querySelectorAll('.page-break')).forEach(sep =>
+        sep.remove()
+      );
     } else {
       html.classList.add('page');
+
+      let rect = bounds(document.querySelector('html'));
+      const ph = 11 * 96;
+      let n = Math.ceil(rect.height / ph);
+      for (let i = 1; i < n; i++) {
+        let y = rect.top + i * n + 30;
+        let separator = glass()
+          .line(rect.left, y, rect.right, y)
+          .stroke({ width: 2, color: 'black', dasharray: '10, 5' });
+        separator.node.classList.add('page-break');
+      }
     }
-    
+
     this.requestUpdate();
   }
 }

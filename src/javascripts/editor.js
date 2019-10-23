@@ -5,12 +5,14 @@ import anime from 'animejs/lib/anime.es.js';
 import { diff } from './utils.js';
 import '../css/editor.css';
 
+
 let mask;
 onReady(() => {
   mask = document.createElement('div');
   mask.id = 'mask';
   mask.classList.add('mask', 'resize-to-body');
   document.body.appendChild(mask);
+  
 });
 
 export default function addEditor(callout) {
