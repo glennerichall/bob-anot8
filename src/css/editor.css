@@ -1,58 +1,80 @@
 #mask {
-    z-index: 1;
-    width: 100%;
-    visibility: hidden;
-    position: absolute;
-    opacity: 0;
-    top: 0;
-    left: 0;
-    background-color: grey;
-  }
+  z-index: 1;
+  width: 100%;
+  visibility: hidden;
+  position: absolute;
+  opacity: 0;
+  top: 0;
+  left: 0;
+  background-color: grey;
+}
 
-  #mask.visible {
-    visibility: visible;
-  }
-  
-  .callouts .editor.input {
-    user-select: inherit;
-    box-sizing: border-box;
-    height: 0px;
-    overflow-y: scroll;
-    resize: both;
-    display: inline-block;
-    position: absolute;
-    z-index: 1000;
-    min-width: 300px;
-  }
-  
-  .editing {
-    cursor: inherit;
-    z-index: 1000;
-  }
-  
-  .hiding {
-    cursor: inherit;
-    z-index: 1000;
-  }
-  
-  .annotated.hiding {
-    position: relative;
-  }
-  
-  .annotated.editing {
-    position: relative;
-  }
-  
-  .callouts .ending.editing,
-  .callouts .content.editing {
-    cursor: inherit;
-    position: inherit;
-  }    
+#mask.visible {
+  visibility: visible;
+}
 
-  .callouts .editor.log {
-    background: white;
-    height: 200px;
-    position: absolute;
-    z-index: 1000;
-    box-sizing: border-box;
-  }
+.callouts .editor.input {
+  user-select: inherit;
+  box-sizing: border-box;
+  height: 0px;
+  overflow-y: scroll;
+  resize: both;
+  display: inline-block;
+  position: absolute;
+  z-index: 1000;
+  min-width: 300px;
+}
+
+.editing {
+  cursor: inherit;
+  z-index: 1000;
+}
+
+.hiding {
+  cursor: inherit;
+  z-index: 1000;
+}
+
+.annotated.hiding {
+  position: relative;
+}
+
+.annotated.editing {
+  position: relative;
+}
+
+.callouts .ending.editing,
+.callouts .content.editing {
+  cursor: inherit;
+  position: inherit;
+}
+
+.callouts .editor.log {
+  background: white;
+  height: 200px;
+  position: absolute;
+  z-index: 1000;
+  box-sizing: border-box;
+}
+
+html.page:not(.print) {
+  width: 12.7in;
+  margin-left: auto;
+  margin-right: auto;
+  box-shadow: 10px 10px rgb(199, 199, 199);
+  border: 1px solid rgb(128, 128, 128);
+  margin-top: 10px;
+}
+
+ @page {
+    size: 8.5in 11in;
+    width: 8.5in;
+    height: 11in;
+    margin: 0;
+}
+
+ html.print {
+  width: 12.7in; /* Why not 8.5in? */
+  box-sizing: border-box;
+  margin: 0;
+}

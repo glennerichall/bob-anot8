@@ -180,9 +180,10 @@ export default function addEditor(callout) {
     let { delta } = evt.detail;
     if (delta.x == 0 && delta.y == 0) return;
     let r = bounds(content);
+    let o = bounds(ending);
     callout.saveState({
-      'callout-left': r.left + 10 + 'px',
-      'callout-top': r.top + 10 + 'px'
+      'callout-left': r.left - o.left + 10 + 'px',
+      'callout-top': r.top - o.top + 10 + 'px'
     });
     callout.callouts.update();
   };

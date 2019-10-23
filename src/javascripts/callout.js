@@ -81,7 +81,7 @@ class Callout {
     return this.node.getAttribute('tag-id');
   }
 
-  clearStorage(){
+  clearStorage() {
     localStorage.removeItem(JSON.stringify(this.initialConfigs.id));
   }
 
@@ -124,11 +124,11 @@ class Callout {
       .setTop(top);
   }
 
-  updateType(){
+  updateType() {
     let ending = this.ending;
     let content = this.content;
     let configs = this.configs;
-    if(this.type !== configs.type){
+    if (this.type !== configs.type) {
       content.classList.remove(this.type);
       ending.classList.remove(this.type);
       content.classList.add(configs.type);
@@ -141,22 +141,16 @@ class Callout {
     let configs = this.configs;
     let content = this.content;
     let ending = this.ending;
-    const e = ending.getBoundingClientRect();
-    const w = document.body.getBoundingClientRect().width;
+    const parent = document.querySelector('html').getBoundingClientRect();
 
-    let top = Number.parseFloat(configs['callout-top']);
-    let left = Number.parseFloat(configs['callout-left']);
-
-    if (typeof left !== 'number' || isNaN(left)) {
-      left = bounds(ending).left + 20;
-    }
-    if (typeof top !== 'number' || isNaN(top)) {
-      top = bounds(ending).top + 50;
-    }
+    let top = Number.parseFloat(configs['callout-top']) || 50;
+    let left = Number.parseFloat(configs['callout-left']) || 20;
+    left += bounds(ending).left;
+    top += bounds(ending).top;
 
     let rect = bounds(content);
-    if (left + rect.width >= w - 10) {
-      left = w - rect.width - 10;
+    if (left + rect.width >= parent.right - 10) {
+      left = parent.right - rect.width - 10;
     }
 
     bounds(content)

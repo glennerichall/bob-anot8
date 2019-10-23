@@ -5,7 +5,9 @@ import { saveAs } from 'file-saver';
 
 function clean(dom) {
   dom
-    .querySelectorAll('.callouts,.menu,.dummy,.connectors,#SvgjsSvg1001,#callout-styles')
+    .querySelectorAll(
+      '.callouts,.menu,.dummy,.connectors,#SvgjsSvg1001,#callout-styles'
+    )
     .forEach(elem => elem.remove());
 
   dom.querySelectorAll('.annotated').forEach(elem => {
@@ -58,15 +60,21 @@ export default class Actions {
       Array.from(elems).forEach(elem => resizeFull(elem));
       this.callouts.update();
     });
+
+    // this.dropShadow = document.createElement('div');
+    // this.dropShadow.id = 'page';
+    // this.dropShadow.classList.add('resize-to-body');
+    // document.body.appendChild(this.dropShadow);
   }
 
   print() {
-    document.body.classList.add('print');
+    let html = document.querySelector('html');
+    html.classList.add('print');
     this.requestUpdate();
     this.requestedFromMenu = true;
     window.print();
     this.requestedFromMenu = false;
-    document.body.classList.remove('print');
+    html.classList.remove('print');
   }
 
   clear() {
@@ -84,4 +92,15 @@ export default class Actions {
   }
 
   add() {}
+
+  togglePage() {
+    let html = document.querySelector('html');
+    if (html.classList.contains('page')) {
+      html.classList.remove('page');
+    } else {
+      html.classList.add('page');
+    }
+    
+    this.requestUpdate();
+  }
 }

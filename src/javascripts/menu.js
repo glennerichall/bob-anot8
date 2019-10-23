@@ -9,7 +9,7 @@ import printImg from '../images/printer.svg';
 import fileImg from '../images/file.svg';
 import trashImg from '../images/trash.svg';
 import plusImg from '../images/plus.svg';
-import Actions from './actions.js';
+import paperImg from '../images/paper.svg';
 
 export function menu(callouts, actions) {
   // add menu bar
@@ -34,11 +34,19 @@ export function menu(callouts, actions) {
   }
 
 
-  function addButton(text, image, action) {
-    let btn = createButton(menu);
+  function createControl(text, image, action, create){
+    let btn = create(menu);
     btn.innerText = text;
     createImage(btn, image);
     btn.onclick = () => actions[action]();
+  }
+
+  function addButton(text, image, action) {
+    createControl(text, image, action, createButton);
+  }
+
+  function addToggle(text, image, action) {
+    createControl(text, image, action, createToggleButton);
   }
 
   // Application version
@@ -47,6 +55,7 @@ export function menu(callouts, actions) {
   version.innerText = process.env.version;
   menu.appendChild(version);
 
+  addToggle('Affichage', paperImg, 'togglePage');
   addButton('Imprimer', printImg, 'print');
   addButton('Effacer', trashImg, 'clear');
   addButton('Télécharger', fileImg, 'export');
