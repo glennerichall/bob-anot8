@@ -1,6 +1,6 @@
 {
   "name": "annotator.velor.ca",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "description": "Html annotation to describe page fir students in computer science",
   "main": "index.js",
   "scripts": {
