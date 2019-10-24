@@ -90,6 +90,15 @@ export default class Actions {
 
   add() {}
 
+  toggleVisible() {
+    let html = document.querySelector('html');
+    if (html.classList.contains('hide-callouts')) {
+      html.classList.remove('hide-callouts');
+    } else {
+      html.classList.add('hide-callouts');
+    }
+  }
+
   togglePage() {
     let html = document.querySelector('html');
     if (html.classList.contains('page')) {

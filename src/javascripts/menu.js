@@ -11,6 +11,7 @@ import fileImg from '../images/file.svg';
 import trashImg from '../images/trash.svg';
 import plusImg from '../images/plus.svg';
 import paperImg from '../images/paper.svg';
+import eyeImg from '../images/eye.svg';
 
 export function menu(callouts, actions) {
   // add menu bar
@@ -65,6 +66,7 @@ export function menu(callouts, actions) {
   addButton('Effacer', trashImg, 'clear');
   addButton('Télécharger', fileImg, 'export');
   addButton('Ajouter', plusImg, 'add');
+  addToggle('Masquer', eyeImg, 'toggleVisible');
 
   // Print handler
   window.addEventListener('resize', () => actions.requestUpdate());

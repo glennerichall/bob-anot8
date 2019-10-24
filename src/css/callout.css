@@ -89,3 +89,8 @@
 .callouts .css.ending {
   border-radius: 5px;
 }
+
+html.hide-callouts .connectors,
+html.hide-callouts .callouts {
+  visibility: hidden;
+}
