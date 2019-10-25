@@ -5,8 +5,10 @@ export default function drag(elem) {
   let drag = false;
   let origin;
   let position;
+  let positionning;
 
   events(elem).mousedown = evt => {
+    positionning = getComputedStyle(elem).position;
     drag = true;
     origin = {
       x: evt.screenX,
@@ -30,6 +32,11 @@ export default function drag(elem) {
         x: evt.screenX - origin.x,
         y: evt.screenY - origin.y
       };
+
+      if (positionning == 'fixed') {
+        delta.x -= window.scrollX;
+        delta.y -= window.scrollY;
+      }
 
       var event = new CustomEvent('drag', {
         detail: { delta },
