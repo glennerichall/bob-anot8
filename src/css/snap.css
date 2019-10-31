@@ -1,0 +1,55 @@
+.select-a-snap,
+.select-an-element {
+  /* box-shadow: 0px 0px 20px red; */
+  cursor: pointer;
+}
+
+.select-an-element .isHover {
+  /* transition: box-shadow 0.3s ease-in-out; */
+  /* pointer-events: none; */
+}
+
+.selector {
+  --duraction: 0.3s;
+  --bw: 2px;
+  visibility: hidden;
+  transition: top var(--duraction), left var(--duraction),
+    width var(--duraction), height var(--duraction), padding var(--duraction);
+  position: absolute;
+  border: var(--bw) dashed black;
+  z-index: 1000;
+  pointer-events: none;
+  margin-left: calc(0px - var(--bw));
+  margin-top: calc(0px - var(--bw));
+}
+
+.selector::after,
+.selector::before {
+  content: attr(tag-name);
+  position: absolute;
+  background-color: white;
+  border: 1px solid black;
+}
+
+.selector::before {
+  top: calc(0px - var(--bw));
+  left: calc(0px - var(--bw));
+}
+
+.selector::after {
+  bottom: calc(0px - var(--bw));
+  right: calc(0px - var(--bw));
+}
+
+.select-a-snap .selector,
+.select-an-element .selector {
+  visibility: visible;
+}
+
+.select-a-snap .selector{
+  --padding: 50px;
+  padding: var(--padding);
+
+  margin-left: calc(0px - var(--bw) - var(--padding));
+  margin-top: calc(0px - var(--bw) - var(--padding));
+}

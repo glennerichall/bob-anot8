@@ -55,14 +55,21 @@ export function debounce(f) {
   };
 }
 
+export function eventListener(elem, type, listener) {
+  elem.addEventListener(type, listener);
+  return () => elem.removeEventListener(type, listener);
+}
+
 export function nthEventListener(n, elem, type, listener) {
   let count = 0;
+  let done;
   let callback = evt => {
-    count++;
     listener(evt);
-    if (count >= n) elem.removeEventListener(type, callback);
+    if (!evt.defaultPrevented) count++;
+    if (count >= n && !!done) done();
   };
-  elem.addEventListener(type, callback);
+  done = eventListener(elem, type, callback);
+  return done;
 }
 
 export function once(elem, type, listener) {

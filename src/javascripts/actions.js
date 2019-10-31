@@ -4,6 +4,7 @@ import { resizeFull } from './positionning.js';
 import { saveAs } from 'file-saver';
 import glass from './glass.js';
 import { bounds } from './bounds.js';
+import { selectAnElement, selectASnap } from './snap';
 
 function clean(dom) {
   dom
@@ -64,8 +65,12 @@ export default class Actions {
     });
   }
 
+  get html() {
+    return document.querySelector('html');
+  }
+
   print() {
-    let html = document.querySelector('html');
+    let html = this.html;
     html.classList.add('print');
     this.requestUpdate();
     this.requestedFromMenu = true;
@@ -88,19 +93,39 @@ export default class Actions {
     save(clone, filename);
   }
 
-  add() {}
+  get isHidden() {
+    return this.html.classList.contains('hide-callouts');
+  }
+
+  add() {
+    selectAnElement(this.html, elem => {
+      if (!!elem) {
+        selectASnap(elem, snap => {
+          console.log(snap);
+        });
+      }
+      console.log(elem);
+    });
+  }
+
+  hide() {
+    this.html.classList.add('hide-callouts');
+  }
+
+  show() {
+    this.html.classList.remove('hide-callouts');
+  }
 
   toggleVisible() {
-    let html = document.querySelector('html');
-    if (html.classList.contains('hide-callouts')) {
-      html.classList.remove('hide-callouts');
+    if (this.isHidden) {
+      this.show();
     } else {
-      html.classList.add('hide-callouts');
+      this.hide();
     }
   }
 
   togglePage() {
-    let html = document.querySelector('html');
+    let html = this.html;
     if (html.classList.contains('page')) {
       html.classList.remove('page');
       Array.from(document.querySelectorAll('.page-break')).forEach(sep =>
@@ -109,7 +134,7 @@ export default class Actions {
     } else {
       html.classList.add('page');
 
-      let rect = bounds(document.querySelector('html'));
+      let rect = bounds(html);
       const ph = 11 * 96;
       let n = Math.ceil(rect.height / ph);
       for (let i = 1; i < n; i++) {

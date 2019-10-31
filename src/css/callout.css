@@ -7,10 +7,12 @@
   top: 0;
   left: 0;
   width: 110%;
+  pointer-events: none;
 }
 
 .callouts * {
   user-select: none;
+  pointer-events: all;
 }
 
 .callouts .bordered {
@@ -73,6 +75,12 @@
   left: 0;
   width: 100%;
   bottom: 0;
+  pointer-events: none;
+}
+
+.select-an-element .callouts,
+.select-an-element .connectors {
+  pointer-events: none;
 }
 
 .callouts .ending {
@@ -90,6 +98,10 @@
   border-radius: 5px;
 }
 
+.select-a-snap .connectors,
+.select-a-snap .callouts,
+.select-an-element .connectors,
+.select-an-element .callouts,
 html.hide-callouts .connectors,
 html.hide-callouts .callouts {
   visibility: hidden;

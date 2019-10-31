@@ -10,6 +10,15 @@
   --version-background: rgb(150, 150, 150);
 }
 
+.select-an-element .menu {
+  pointer-events: none;
+}
+
+.select-an-element .menu:hover,
+.select-an-element .menu *:hover {
+  box-shadow: initial;
+}
+
 .menu .button:first-of-type {
   border-top-left-radius: var(--radius);
   border-bottom-left-radius: var(--radius);
@@ -126,4 +135,9 @@
   .menu {
     display: none;
   }
+}
+
+.select-a-snap .menu,
+.select-an-element .menu {
+  visibility: hidden;
 }

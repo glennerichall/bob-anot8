@@ -3,6 +3,21 @@ import { Rectangle } from 'webcola';
 export function bounds(elem) {
   let rect = elem.getBoundingClientRect();
   return {
+    contains(x, y) {
+      return !(
+        this.left >= x ||
+        this.right <= x ||
+        this.top >= y ||
+        this.bottom <= y
+      );
+    },
+    from(other) {
+      let b = bounds(other);
+      this.width = b.width;
+      this.height = b.height;
+      this.top = b.top;
+      this.left = b.left;
+    },
     setTop(value) {
       this.top = value;
       rect = elem.getBoundingClientRect();
@@ -32,9 +47,9 @@ export function bounds(elem) {
       }
       return this;
     },
-    get isInViewport(){
+    get isInViewport() {
       let vp = document.body.getBoundingClientRect();
-      return this.left >=0 && this.right <= vp.width;
+      return this.left >= 0 && this.right <= vp.width;
     },
     set width(value) {
       if (typeof value == 'number') {
