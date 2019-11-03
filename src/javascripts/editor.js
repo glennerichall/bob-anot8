@@ -3,17 +3,8 @@ import enableDrag from './drag.js';
 import { bounds } from './bounds';
 import anime from 'animejs/lib/anime.es.js';
 import { diff } from './utils.js';
+import mask from './mask.js';
 import '../css/editor.css';
-
-
-let mask;
-onReady(() => {
-  mask = document.createElement('div');
-  mask.id = 'mask';
-  mask.classList.add('mask', 'resize-to-body');
-  document.body.appendChild(mask);
-  
-});
 
 export default function addEditor(callout) {
   const content = callout.content;
@@ -51,7 +42,6 @@ export default function addEditor(callout) {
 
     let width = bounds(input).width;
 
-    mask.classList.add('visible');
     bounds(output)
       .setLeft(rect.left)
       .setTop(bottom)
@@ -75,12 +65,7 @@ export default function addEditor(callout) {
 
     input.value = JSON.stringify(callout.configs, null, 2);
 
-    anime({
-      targets: mask,
-      opacity: 0.9,
-      duration,
-      easing
-    });
+    mask.show();
 
     anime({
       targets: input,
@@ -97,12 +82,12 @@ export default function addEditor(callout) {
       easing
     });
 
-    anime({
-      targets: node,
-      'box-shadow': '0px 0px 20px red',
-      duration,
-      easing
-    });
+    // anime({
+    //   targets: node,
+    //   'box-shadow': '0px 0px 20px red',
+    //   duration,
+    //   easing
+    // });
 
     events(input).input = () => {
       output.innerText = null;
@@ -120,21 +105,12 @@ export default function addEditor(callout) {
     };
   };
 
-  events(mask).click = () => {
+  events(mask.node).click = () => {
     if (!isEditing) return;
 
-    [node, mask, content, ending].forEach(elem => elem.classList.add('hiding'));
+    [node, content, ending].forEach(elem => elem.classList.add('hiding'));
 
-    anime({
-      targets: mask,
-      opacity: 0,
-      duration,
-      complete: () => {
-        mask.style.removeProperty('opacity');
-        mask.classList.remove('visible', 'hiding');
-      },
-      easing
-    });
+    mask.hide();
 
     anime({
       targets: input,
@@ -151,21 +127,24 @@ export default function addEditor(callout) {
       top: '-=200px',
       duration,
       easing,
-      complete: () => output.remove()
-    });
-
-    anime({
-      targets: node,
-      'box-shadow': '0px 0px 0px red',
-      duration,
       complete: () => {
-        node.style.removeProperty('box-shadow');
         [node, content, ending].forEach(elem =>
           elem.classList.remove('hiding')
         );
-      },
-      easing
+        output.remove();
+      }
     });
+
+    // anime({
+    //   targets: node,
+    //   'box-shadow': '0px 0px 0px red',
+    //   duration,
+    //   complete: () => {
+    //     node.style.removeProperty('box-shadow');
+    // [node, content, ending].forEach(elem => elem.classList.remove('hiding'));
+    //   },
+    //   easing
+    // });
 
     [content, ending, node].forEach(elem => elem.classList.remove('editing'));
 

@@ -1,17 +1,3 @@
-#mask {
-  z-index: 1;
-  width: 100%;
-  visibility: hidden;
-  position: absolute;
-  opacity: 0;
-  top: 0;
-  left: 0;
-  background-color: grey;
-}
-
-#mask.visible {
-  visibility: visible;
-}
 
 .callouts .editor.input {
   user-select: inherit;
@@ -41,6 +27,7 @@
 
 .annotated.editing {
   position: relative;
+  background-color: white;
 }
 
 .callouts .ending.editing,

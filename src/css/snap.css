@@ -4,9 +4,15 @@
   cursor: pointer;
 }
 
-.select-an-element .isHover {
+.select-an-element .is-hover {
   /* transition: box-shadow 0.3s ease-in-out; */
   /* pointer-events: none; */
+}
+
+.select-a-snap .target {
+  z-index: 1000;
+  position: relative;
+  background-color: white;
 }
 
 .selector {
@@ -14,10 +20,11 @@
   --bw: 2px;
   visibility: hidden;
   transition: top var(--duraction), left var(--duraction),
-    width var(--duraction), height var(--duraction), padding var(--duraction);
+    width var(--duraction), height var(--duraction), padding var(--duraction),
+    margin var(--duraction);
   position: absolute;
   border: var(--bw) dashed black;
-  z-index: 1000;
+  z-index: 999;
   pointer-events: none;
   margin-left: calc(0px - var(--bw));
   margin-top: calc(0px - var(--bw));
@@ -29,11 +36,22 @@
   position: absolute;
   background-color: white;
   border: 1px solid black;
+  transition: transform var(--duraction), left var(--duraction),
+    bottom var(--duraction);
+    z-index: 1000;
 }
 
 .selector::before {
   top: calc(0px - var(--bw));
   left: calc(0px - var(--bw));
+}
+
+.selector.small::before {
+  transform: translateY(-100%);
+}
+
+.selector.small::after {
+  transform: translateY(100%);
 }
 
 .selector::after {
@@ -46,10 +64,87 @@
   visibility: visible;
 }
 
-.select-a-snap .selector{
+/* .select-a-snap body * {
+  filter: blur(4px);
+}
+
+.select-a-snap .selector *,
+.select-a-snap .selector,
+.select-a-snap .target {
+  filter: none;
+} */
+
+.select-a-snap .selector {
   --padding: 50px;
   padding: var(--padding);
-
   margin-left: calc(0px - var(--bw) - var(--padding));
   margin-top: calc(0px - var(--bw) - var(--padding));
+}
+
+.selector .box-model {
+  --margin-width: calc( var(--padding) / 3);
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: rgb(223, 223, 236);
+  visibility: hidden;
+}
+
+.box-model *,
+.box-model {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  padding: var( --margin-width);
+}
+
+.box-model * {
+  position: relative;
+}
+
+.select-a-snap .box-model {
+  visibility: visible;
+}
+
+.box-model .border {
+  background-color: rgb(238, 228, 228);
+}
+
+.box-model .padding {
+  background-color: rgb(235, 235, 223);
+}
+
+.box-model.is-hover {
+  background-color: rgb(40, 40, 221);;
+}
+
+.box-model .border.is-hover {
+  background-color: rgb(219, 73, 73);
+}
+
+.box-model .padding.is-hover {
+  background-color: rgb(172, 172, 34);
+}
+
+.selector .box-model::before,
+.box-model *::before {
+  position: absolute;
+  right: 5px;
+  top: 0;
+}
+.box-model {
+  pointer-events: all;
+}
+
+.box-model .padding.is-hover::before {
+  content: 'padding';
+}
+
+.box-model .border.is-hover::before {
+  content: 'border';
+}
+
+.selector .box-model.is-hover::before {
+  content: 'margin';
+  color: white;
 }

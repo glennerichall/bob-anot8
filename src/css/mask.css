@@ -1,0 +1,14 @@
+#mask {
+    z-index: 1;
+    width: 100%;
+    visibility: hidden;
+    position: absolute;
+    opacity: 0;
+    top: 0;
+    left: 0;
+    background-color: grey;
+  }
+  
+  #mask.visible {
+    visibility: visible;
+  }
