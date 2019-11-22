@@ -9,6 +9,7 @@ import { createImage } from './images.js';
 import { createButton } from './buttons.js';
 import { events, onReady } from './events.js';
 import addEditor from './editor';
+import store from './storage.js';
 
 let draw;
 onReady(() => {
@@ -82,11 +83,11 @@ class Callout {
   }
 
   clearStorage() {
-    localStorage.removeItem(JSON.stringify(this.initialConfigs.id));
+    store.remove(JSON.stringify(this.initialConfigs.id));
   }
 
   get localStorageConfigs() {
-    let storage = localStorage.getItem(JSON.stringify(this.initialConfigs.id));
+    let storage = store.get(JSON.stringify(this.initialConfigs.id));
     if (storage) {
       storage = JSON.parse(storage);
     } else {
@@ -178,9 +179,9 @@ class Callout {
       ...this.localStorageConfigs,
       ...state
     };
-    localStorage.setItem(
+    store.set(
       JSON.stringify(this.configs.id),
-      JSON.stringify(configs)
+      configs
     );
   }
 

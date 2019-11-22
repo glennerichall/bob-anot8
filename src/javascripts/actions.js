@@ -1,35 +1,38 @@
-import printImg from '../images/printer.svg';
-import { debounce } from './utils.js';
-import { resizeFull } from './positionning.js';
-import { saveAs } from 'file-saver';
-import glass from './glass.js';
-import { bounds } from './bounds.js';
-import { selectAnElement, selectASnap } from './snap';
+import printImg from "../images/printer.svg";
+import { debounce } from "./utils.js";
+import { resizeFull } from "./positionning.js";
+import { saveAs } from "file-saver";
+import glass from "./glass.js";
+import { bounds } from "./bounds.js";
+import { selectAnElement, selectASnap } from "./snap";
+import store from "./storage.js";
 
 function clean(dom) {
   dom
     .querySelectorAll(
-      '.callouts,.menu,.dummy,.connectors,#SvgjsSvg1001,#callout-styles'
+      ".callouts,.menu,.dummy,.connectors,#SvgjsSvg1001,#callout-styles,#mask,#glass,#selector"
     )
     .forEach(elem => elem.remove());
 
-  dom.querySelectorAll('.annotated').forEach(elem => {
-    elem.classList.remove('annotated');
-    elem.removeAttribute('tag-id');
+  dom.querySelectorAll(".annotated").forEach(elem => {
+    elem.classList.remove("annotated");
+    elem.removeAttribute("tag-id");
   });
 
   dom.querySelectorAll('[class=""]').forEach(elem => {
-    elem.removeAttribute('class');
+    elem.removeAttribute("class");
   });
 
-  let scripts = dom.querySelectorAll('script');
+  dom.getElementsByTagName("html")[0].classList.remove("page");
+
+  let scripts = dom.querySelectorAll("script");
   Array.from(scripts).forEach(script => {
     let previous = script.previousSibling;
     while (!!previous && previous.nodeType != 8)
       previous = previous.previousSibling;
     if (
       !!previous &&
-      previous.nodeValue.includes('Code injected by live-server')
+      previous.nodeValue.includes("Code injected by live-server")
     ) {
       script.remove();
       previous.remove();
@@ -39,8 +42,8 @@ function clean(dom) {
 
 function deepClone(dom) {
   let xml = new XMLSerializer().serializeToString(dom);
-  xml = xml.replace(' xmlns="http://www.w3.org/1999/xhtml"', '');
-  return new DOMParser().parseFromString(xml, 'text/html');
+  xml = xml.replace(' xmlns="http://www.w3.org/1999/xhtml"', "");
+  return new DOMParser().parseFromString(xml, "text/html");
 }
 
 function save(dom, filename) {
@@ -48,7 +51,7 @@ function save(dom, filename) {
   // xml = beautify(xml);
 
   var file = new File([xml], filename, {
-    type: 'text/html;charset=utf-8'
+    type: "text/html;charset=utf-8"
   });
   saveAs(file);
 }
@@ -58,29 +61,29 @@ export default class Actions {
     this.callouts = callouts;
 
     this.requestUpdate = debounce(() => {
-      console.log('update requested');
-      let elems = document.querySelectorAll('.resize-to-body');
+      console.log("update requested");
+      let elems = document.querySelectorAll(".resize-to-body");
       Array.from(elems).forEach(elem => resizeFull(elem));
       this.callouts.update();
     });
   }
 
   get html() {
-    return document.querySelector('html');
+    return document.querySelector("html");
   }
 
   print() {
     let html = this.html;
-    html.classList.add('print');
+    html.classList.add("print");
     this.requestUpdate();
     this.requestedFromMenu = true;
     window.print();
     this.requestedFromMenu = false;
-    html.classList.remove('print');
+    html.classList.remove("print");
   }
 
   clear() {
-    localStorage.clear();
+    store.clearAll();
     this.requestUpdate();
   }
 
@@ -89,12 +92,12 @@ export default class Actions {
     this.callouts.insertInto(clone);
     clean(clone);
     var url = window.location.pathname;
-    var filename = url.substring(url.lastIndexOf('/') + 1);
+    var filename = url.substring(url.lastIndexOf("/") + 1);
     save(clone, filename);
   }
 
   get isHidden() {
-    return this.html.classList.contains('hide-callouts');
+    return this.html.classList.contains("hide-callouts");
   }
 
   add() {
@@ -109,11 +112,11 @@ export default class Actions {
   }
 
   hide() {
-    this.html.classList.add('hide-callouts');
+    this.html.classList.add("hide-callouts");
   }
 
   show() {
-    this.html.classList.remove('hide-callouts');
+    this.html.classList.remove("hide-callouts");
   }
 
   toggleVisible() {
@@ -126,13 +129,13 @@ export default class Actions {
 
   togglePage() {
     let html = this.html;
-    if (html.classList.contains('page')) {
-      html.classList.remove('page');
-      Array.from(document.querySelectorAll('.page-break')).forEach(sep =>
+    if (html.classList.contains("page")) {
+      html.classList.remove("page");
+      Array.from(document.querySelectorAll(".page-break")).forEach(sep =>
         sep.remove()
       );
     } else {
-      html.classList.add('page');
+      html.classList.add("page");
 
       let rect = bounds(html);
       const ph = 11 * 96;
@@ -141,8 +144,8 @@ export default class Actions {
         let y = rect.top + i * n + 30;
         let separator = glass()
           .line(rect.left, y, rect.right, y)
-          .stroke({ width: 2, color: 'black', dasharray: '10, 5' });
-        separator.node.classList.add('page-break');
+          .stroke({ width: 2, color: "black", dasharray: "10, 5" });
+        separator.node.classList.add("page-break");
       }
     }
 
