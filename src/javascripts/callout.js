@@ -1,31 +1,31 @@
-import { bounds } from './bounds';
-import { parseMessage, annotate } from './targets.js';
-import getPosition, { moveBy, removeOverlaps } from './positionning.js';
-import enableDrag from './drag.js';
-import * as SVG from 'svg.js';
-import '../css/callout.css';
-import saveImg from '../images/save.svg';
-import { createImage } from './images.js';
-import { createButton } from './buttons.js';
-import { events, onReady } from './events.js';
-import addEditor from './editor';
-import store from './storage.js';
+import { bounds } from "./bounds";
+import { parseMessage, annotate } from "./targets.js";
+import getPosition, { moveBy, removeOverlaps } from "./positionning.js";
+import enableDrag from "./drag.js";
+import * as SVG from "svg.js";
+import "../css/callout.css";
+import saveImg from "../images/save.svg";
+import { createImage } from "./images.js";
+import { createButton } from "./buttons.js";
+import { events, onReady } from "./events.js";
+import addEditor from "./editor";
+import store from "./storage.js";
 
 let draw;
 onReady(() => {
   // is used to draw callout lines
-  let connectors = document.createElement('div');
-  connectors.classList.add('connectors', 'resize-to-body');
-  connectors.id = 'connectors';
+  let connectors = document.createElement("div");
+  connectors.classList.add("connectors", "resize-to-body");
+  connectors.id = "connectors";
   document.body.appendChild(connectors);
 
-  let callouts = document.createElement('div');
-  callouts.classList.add('callouts', 'resize-to-body');
-  callouts.id = 'callouts';
+  let callouts = document.createElement("div");
+  callouts.classList.add("callouts", "resize-to-body");
+  callouts.id = "callouts";
   document.body.appendChild(callouts);
 
   // version 2
-  draw = SVG('connectors').size('100%', '100%');
+  draw = SVG("connectors").size("100%", "100%");
 
   // version 3.
   // draw = SVG()
@@ -34,14 +34,14 @@ onReady(() => {
 });
 
 function createElements(node, configs) {
-  let content = document.createElement('div');
-  let callouts = document.getElementById('callouts');
-  content.classList.add('content', configs.type);
+  let content = document.createElement("div");
+  let callouts = document.getElementById("callouts");
+  content.classList.add("content", configs.type);
   content.innerText = parseMessage(node, configs.message);
   callouts.appendChild(content);
 
-  let ending = document.createElement('div');
-  ending.classList.add('ending', configs.type);
+  let ending = document.createElement("div");
+  ending.classList.add("ending", configs.type);
   callouts.appendChild(ending);
 
   return { content, ending };
@@ -68,18 +68,23 @@ function connect(a, b) {
       r2.left + r2.width / 2,
       r2.top + r2.height / 2
     )
-    .stroke({ width: 1, color: 'black', dasharray: '3, 2' });
+    .stroke({ width: 1, color: "black", dasharray: "3, 2" });
 }
 
+let tagId = 0;
 class Callout {
   constructor(node, configs) {
     this.node = node;
     this.initialConfigs = configs;
     this.type = configs.type;
+
+    if (!node.hasAttribute("tag-id")) {
+      node.setAttribute("tag-id", tagId++);
+    }
   }
 
   get tagId() {
-    return this.node.getAttribute('tag-id');
+    return this.node.getAttribute("tag-id");
   }
 
   clearStorage() {
@@ -87,13 +92,7 @@ class Callout {
   }
 
   get localStorageConfigs() {
-    let storage = store.get(JSON.stringify(this.initialConfigs.id));
-    if (storage) {
-      storage = JSON.parse(storage);
-    } else {
-      storage = {};
-    }
-    return storage;
+    return store.get(JSON.stringify(this.initialConfigs.id), {});
   }
 
   get configs() {
@@ -105,10 +104,7 @@ class Callout {
 
   updateArc() {
     if (!this.arc) {
-      this.arc = connect(
-        this.content,
-        this.ending
-      );
+      this.arc = connect(this.content, this.ending);
       if (!this.arc) setTimeout(() => this.updateArc(), 100);
     } else {
       updateLine(this.arc, this.content, this.ending);
@@ -142,10 +138,10 @@ class Callout {
     let configs = this.configs;
     let content = this.content;
     let ending = this.ending;
-    const parent = document.querySelector('html').getBoundingClientRect();
+    const parent = document.querySelector("html").getBoundingClientRect();
 
-    let top = Number.parseFloat(configs['callout-top']) || 50;
-    let left = Number.parseFloat(configs['callout-left']) || 20;
+    let top = Number.parseFloat(configs["callout-top"]) || 50;
+    let left = Number.parseFloat(configs["callout-left"]) || 20;
     left += bounds(ending).left;
     top += bounds(ending).top;
 
@@ -171,6 +167,7 @@ class Callout {
   update() {
     this.updateEnding();
     this.updateContent();
+    this.updateArc();
     this.updateType();
   }
 
@@ -179,17 +176,14 @@ class Callout {
       ...this.localStorageConfigs,
       ...state
     };
-    store.set(
-      JSON.stringify(this.configs.id),
-      configs
-    );
+    store.set(JSON.stringify(this.configs.id), configs);
   }
 
   install() {
     let node = this.node;
     let configs = this.configs;
 
-    node.classList.add('annotated');
+    node.classList.add("annotated");
     let { content, ending } = createElements(node, configs);
     this.content = content;
     this.ending = ending;
@@ -221,7 +215,7 @@ class CalloutCollection {
 
   update() {
     this.callouts.forEach(callout => callout.update());
-    const contents = document.querySelectorAll('.callouts .content');
+    const contents = document.querySelectorAll(".callouts .content");
     removeOverlaps(contents);
     this.forEach(callout => callout.updateArc());
   }
@@ -232,6 +226,20 @@ class CalloutCollection {
 
   insertInto(dom) {
     this.forEach(callout => callout.insertInto(dom));
+  }
+
+  add(node, configs) {
+    const callout = new Callout(node, configs);
+    this.callouts.push(callout);
+    callout.callouts = this;
+    return callout;
+  }
+
+  nextId() {
+    let ids = this.callouts.map(x => x.configs.id);
+    let id = 0;
+    while (ids.includes(id)) id++;
+    return id;
   }
 }
 

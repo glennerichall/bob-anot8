@@ -1,13 +1,14 @@
 import store from "store/dist/store.modern";
+var operations = require('store/plugins/operations')
 import hash from "hash.js";
 
 function getKey(key) {
   return hash
-    .sha256()
-    .update(document.URL)
-    .digest("hex") +
-    "." +
-    key;
+  .sha256()
+  .update(document.URL)
+  .digest("hex") +
+  "." +
+  key;
 }
 var urlHashPlugin = function() {
   return {
@@ -20,5 +21,6 @@ var urlHashPlugin = function() {
   };
 };
 store.addPlugin(urlHashPlugin);
+store.addPlugin(operations);
 
 export default store;

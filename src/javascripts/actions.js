@@ -6,6 +6,7 @@ import glass from "./glass.js";
 import { bounds } from "./bounds.js";
 import { selectAnElement, selectASnap } from "./snap";
 import store from "./storage.js";
+import finder from "@medv/finder";
 
 function clean(dom) {
   dom
@@ -103,11 +104,39 @@ export default class Actions {
   add() {
     selectAnElement(this.html, elem => {
       if (!!elem) {
-        selectASnap(elem, snap => {
-          console.log(snap);
+        // selectASnap(elem, snap => {
+        //   console.log(snap);
+        // });
+
+        let selector = finder(elem, {
+          root: document.body,
+          seedMinLength: 3,
+          className: ()=>false
+          // className: (name) => name != 'is-hover' && name != 'annotated',
+        });
+        let id = this.callouts.nextId();
+        let callout = this.callouts.add(elem, {
+          id,
+          type: "html",
+          message: "Élément $tag",
+          "horizontal-snap": "border-right",
+          "vertical-snap": "content",
+          "horizontal-align": "right",
+          "vertical-align": "middle",
+          "horizontal-anchor": "center",
+          "vertical-anchor": "middle",
+          "margin-left": "0px",
+          "margin-top": "0px",
+          "callout-left": "0px",
+          "callout-top": "0px"
+        });
+        callout.install();
+        callout.update();
+        store.push("dangling", {
+          selector,
+          id
         });
       }
-      console.log(elem);
     });
   }
 

@@ -42,6 +42,16 @@ export function parseMessage(node, message) {
     msg = msg.replace(match[0], normalize(value));
     match = regexAttr.exec(message);
   }
+
+  let regexType = /\$tag/g;
+  match = regexType.exec(message);
+
+  while (match) {
+    let value = node.tagName;
+    msg = msg.replace(match[0], normalize(value));
+    match = regexAttr.exec(message);
+  }
+
   return msg;
 }
 
@@ -54,13 +64,11 @@ export function getTargets(rootElem) {
   var iterator = getIterator(rootElem);
 
   var curNode = iterator.nextNode();
-  let tagId = 0;
   while (curNode) {
     let comment = curNode.nodeValue;
     let next = iterator.nextNode();
     // find comment nodes (type == 8)
     if (curNode.nodeType == 8) {
-      next.setAttribute('tag-id', tagId++);
       let configs = JSON.parse(comment.replace(tag, ''));
       let target = { node: next, configs, comment: curNode };
       targets.push(target);

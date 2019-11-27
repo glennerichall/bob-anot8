@@ -11,6 +11,7 @@
   "author": "Glenn Hall",
   "license": "ISC",
   "dependencies": {
+    "@medv/finder": "^1.1.2",
     "animejs": "^3.1.0",
     "file-saver": "^2.0.2",
     "hash.js": "^1.1.7",

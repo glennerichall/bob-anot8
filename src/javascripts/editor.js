@@ -1,17 +1,17 @@
-import { events, onReady } from './events.js';
-import enableDrag from './drag.js';
-import { bounds } from './bounds';
-import anime from 'animejs/lib/anime.es.js';
-import { diff } from './utils.js';
-import mask from './mask.js';
-import '../css/editor.css';
+import { events, onReady } from "./events.js";
+import enableDrag from "./drag.js";
+import { bounds } from "./bounds";
+import anime from "animejs/lib/anime.es.js";
+import { diff } from "./utils.js";
+import mask from "./mask.js";
+import "../css/editor.css";
 
 export default function addEditor(callout) {
   const content = callout.content;
   const ending = callout.ending;
   const node = callout.node;
   const duration = 500;
-  const easing = 'easeOutExpo';
+  const easing = "easeOutExpo";
 
   let input;
   let output;
@@ -21,13 +21,13 @@ export default function addEditor(callout) {
     if (isEditing) return;
     isEditing = true;
 
-    [content, ending, node].forEach(elem => elem.classList.add('editing'));
+    [content, ending, node].forEach(elem => elem.classList.add("editing"));
 
-    input = document.createElement('textarea');
-    input.classList.add('editor', 'input');
+    input = document.createElement("textarea");
+    input.classList.add("editor", "input");
 
-    output = document.createElement('div');
-    output.classList.add('log', 'editor');
+    output = document.createElement("div");
+    output.classList.add("log", "editor");
 
     callouts.appendChild(input);
     callouts.appendChild(output);
@@ -69,15 +69,15 @@ export default function addEditor(callout) {
 
     anime({
       targets: input,
-      height: '200px',
+      height: "200px",
       duration,
       easing
     });
 
     anime({
       targets: output,
-      height: '200px',
-      top: '+=200px',
+      height: "200px",
+      top: "+=200px",
       duration,
       easing
     });
@@ -108,13 +108,13 @@ export default function addEditor(callout) {
   events(mask.node).click = () => {
     if (!isEditing) return;
 
-    [node, content, ending].forEach(elem => elem.classList.add('hiding'));
+    [node, content, ending].forEach(elem => elem.classList.add("hiding"));
 
     mask.hide();
 
     anime({
       targets: input,
-      height: '0px',
+      height: "0px",
       opacity: 0,
       duration,
       complete: () => input.remove(),
@@ -123,13 +123,13 @@ export default function addEditor(callout) {
 
     anime({
       targets: output,
-      height: '0px',
-      top: '-=200px',
+      height: "0px",
+      top: "-=200px",
       duration,
       easing,
       complete: () => {
         [node, content, ending].forEach(elem =>
-          elem.classList.remove('hiding')
+          elem.classList.remove("hiding")
         );
         output.remove();
       }
@@ -146,7 +146,7 @@ export default function addEditor(callout) {
     //   easing
     // });
 
-    [content, ending, node].forEach(elem => elem.classList.remove('editing'));
+    [content, ending, node].forEach(elem => elem.classList.remove("editing"));
 
     isEditing = false;
     callout.callouts.update();
@@ -162,8 +162,8 @@ export default function addEditor(callout) {
     let r = bounds(content);
     let o = bounds(ending);
     callout.saveState({
-      'callout-left': r.left - o.left + 10 + 'px',
-      'callout-top': r.top - o.top + 10 + 'px'
+      "callout-left": r.left - o.left + 10 + "px",
+      "callout-top": r.top - o.top + 10 + "px"
     });
     callout.callouts.update();
   };
@@ -175,16 +175,16 @@ export default function addEditor(callout) {
 
   events(ending).drop = evt => {
     let r = bounds(content);
-    let mt = callout.configs['margin-top'] || '0px';
-    let ml = callout.configs['margin-left'] || '0px';
+    let mt = callout.configs["margin-top"] || "0px";
+    let ml = callout.configs["margin-left"] || "0px";
     mt = Number.parseFloat(mt);
     ml = Number.parseFloat(ml);
     let { delta } = evt.detail;
     callout.saveState({
-      'margin-left': ml + delta.x + 'px',
-      'margin-top': mt + delta.y + 'px',
-      'callout-left': r.left,
-      'callout-top': r.top
+      "margin-left": ml + delta.x + "px",
+      "margin-top": mt + delta.y + "px",
+      "callout-left": r.left,
+      "callout-top": r.top
     });
   };
 
