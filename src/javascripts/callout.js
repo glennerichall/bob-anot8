@@ -10,6 +10,7 @@ import { createButton } from "./buttons.js";
 import { events, onReady } from "./events.js";
 import addEditor from "./editor";
 import store from "./storage.js";
+import uniqid from 'uniqid';
 
 let draw;
 onReady(() => {
@@ -237,15 +238,15 @@ class CalloutCollection {
 
   nextId() {
     let ids = this.callouts.map(x => x.configs.id);
-    let id = 0;
-    while (ids.includes(id)) id++;
+    let id = uniqid();
+    while (ids.includes(id)) id = uniqid();
     return id;
   }
 }
 
 function createCallout(target) {
   let configs = target.configs;
-  target.comment.remove();
+  if (!!target.comment) target.comment.remove();
   if (Array.isArray(configs)) {
     return configs.map(config => createCallout({ ...target, configs: config }));
   }

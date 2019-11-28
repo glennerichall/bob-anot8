@@ -111,11 +111,11 @@ export default class Actions {
         let selector = finder(elem, {
           root: document.body,
           seedMinLength: 3,
-          className: ()=>false
+          className: () => false
           // className: (name) => name != 'is-hover' && name != 'annotated',
         });
         let id = this.callouts.nextId();
-        let callout = this.callouts.add(elem, {
+        let configs = {
           id,
           type: "html",
           message: "Élément $tag",
@@ -129,12 +129,13 @@ export default class Actions {
           "margin-top": "0px",
           "callout-left": "0px",
           "callout-top": "0px"
-        });
+        };
+        let callout = this.callouts.add(elem, configs);
         callout.install();
         callout.update();
         store.push("dangling", {
           selector,
-          id
+          configs
         });
       }
     });

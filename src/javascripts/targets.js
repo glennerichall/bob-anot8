@@ -1,4 +1,5 @@
 import { normalize } from './normalize.js';
+import store from "./storage.js";
 
 let getIterator = root =>
   document.createNodeIterator(
@@ -56,8 +57,8 @@ export function parseMessage(node, message) {
 }
 
 const tag = 'Annotate:';
-// -------------------------------------
-export function getTargets(rootElem) {
+
+function targetsFromComments(rootElem) {
   var targets = [];
 
   // Fourth argument, which is actually obsolete according to the DOM4 standard, is required in IE 11
@@ -74,6 +75,40 @@ export function getTargets(rootElem) {
       targets.push(target);
     }
     curNode = next;
+  }
+  return targets;
+}
+
+
+function targetsFromStorage() {
+  let danglings = store.get('dangling', []);
+
+  return danglings.map(x => {
+    let {configs} = x;
+    let node = document.querySelector(x.selector);
+    return { node, configs };
+  });
+}
+
+// -------------------------------------
+export function getTargets(rootElem) {
+  let targets = targetsFromComments(rootElem);
+  let dangling = targetsFromStorage();
+
+  for (let elem of dangling) {
+    let found = false;
+    for (let target of targets) {
+      if (target.node == elem.node) {
+        found = true;
+        if (!Array.isArray(target.configs)) {
+          target.configs = [target.configs];
+        }
+        target.configs.push(elem.configs);
+      }
+    }
+    if (!found) {
+      targets.push(elem);
+    }
   }
   return targets;
 }
