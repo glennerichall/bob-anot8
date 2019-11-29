@@ -1,6 +1,6 @@
 // -------------------------------------
 export function colorHexToName(color) {
-  if(!color) return color;
+  if (!color) return color;
   return color
     .replace('#ff0000', 'rouge')
     .replace('#00ff00', 'vert')
@@ -9,7 +9,7 @@ export function colorHexToName(color) {
 
 // -------------------------------------
 export function colorToHex(color) {
-  if(!color) return color;
+  if (!color) return color;
   if (color.substr(0, 1) === '#') {
     return color;
   }
@@ -28,7 +28,7 @@ export function colorToHex(color) {
 
 // -------------------------------------
 export function normalizePixels(value) {
-  if(!value) return value;
+  if (!value) return value;
   value = value.replace('px', ' pixels');
   let match = /(\d+\.\d+) pixels/.exec(value);
   if (match) {
@@ -39,13 +39,47 @@ export function normalizePixels(value) {
   return value;
 }
 
+const tagNames = {
+  H1: 'Titre de niveau 1',
+  H2: 'Titre de niveau 2',
+  H3: 'Titre de niveau 3',
+  H4: 'Titre de niveau 4',
+  H5: 'Titre de niveau 5',
+  H6: 'Titre de niveau 6',
+  A: 'Lien hypertexte',
+  B: 'À porter attention',
+  CAPTION: 'Légende',
+  CODE: 'Code en incise',
+  DIV: 'Division',
+  DD: 'Définition',
+  DL: 'Liste de définitions',
+  DT: 'Terme',
+  FIGURE: 'Figure',
+  FIGCAPTION: 'Légende de figure',
+  FORM: 'Formulaire',
+  IMG: 'Image',
+  INPUT: 'Champ de saisie',
+  OL: 'Liste ordonnée',
+  P: 'Paragraphe',
+  SMALL: ' Commentaires',
+  STRONG: 'Haute importance',
+  SUP: 'Exposant',
+  SUB: 'Indice',
+  TABLE: 'Tableau de données',
+  TR: 'Ligne de tableau',
+  TD: 'Cellule de tableau',
+  UL: 'Liste non-ordonnée'
+};
+export function tagToDesc(value) {
+  return tagNames[value] || value;
+}
+
 
 // -------------------------------------
 export function normalize(value) {
-  if(!value) return value;
-    value = colorToHex(value);
-    value = colorHexToName(value);
-    value = normalizePixels(value);
-    return value;
-  }
-  
+  if (!value) return value;
+  value = colorToHex(value);
+  value = colorHexToName(value);
+  value = normalizePixels(value);
+  return value;
+}

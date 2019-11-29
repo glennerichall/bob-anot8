@@ -1,5 +1,6 @@
 import { bounds } from "./bounds";
-import { parseMessage, annotate } from "./targets.js";
+import { annotate } from "./targets.js";
+import { parseMessage } from './parser.js';
 import getPosition, { moveBy, removeOverlaps } from "./positionning.js";
 import enableDrag from "./drag.js";
 import * as SVG from "svg.js";
@@ -151,6 +152,7 @@ class Callout {
       left = parent.right - rect.width - 10;
     }
 
+    content.innerText = parseMessage(this.node, configs.message);
     bounds(content)
       .setLeft(left)
       .setTop(top);

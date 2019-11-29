@@ -118,7 +118,7 @@ export default class Actions {
         let configs = {
           id,
           type: "html",
-          message: "Élément $tag",
+          message: "$tag",
           "horizontal-snap": "border-right",
           "vertical-snap": "content",
           "horizontal-align": "right",
