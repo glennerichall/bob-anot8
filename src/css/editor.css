@@ -48,9 +48,23 @@ html.page:not(.print) {
   width: 12.7in;
   margin-left: auto;
   margin-right: auto;
-  box-shadow: 10px 10px rgb(199, 199, 199);
+  box-shadow: 
+    2px 0px 3px rgb(199, 199, 199), 
+    -2px 0px 3px rgb(199, 199, 199), 
+    0px 2px 3px rgb(199, 199, 199), 
+    0px -2px 3px rgb(199, 199, 199);
   border: 1px solid rgb(128, 128, 128);
   margin-top: 10px;
+}
+
+html.page:not(.print):before {
+  position: absolute;
+  display: block;
+  transform: translateX(-50%) rotateZ(-90deg) translateX(-50%) translateY(-100%);
+}
+
+html.page[paper="letter"][orientation="portrait"]:not(.print):before {
+  content: "Letter - Portrait";
 }
 
  @page {

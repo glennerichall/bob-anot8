@@ -24,7 +24,10 @@ function clean(dom) {
     elem.removeAttribute("class");
   });
 
-  dom.getElementsByTagName("html")[0].classList.remove("page");
+  const html = dom.getElementsByTagName("html")[0];
+  html.classList.remove("page");
+  html.removeAttribute("paper");
+  html.removeAttribute("orientation");
 
   let scripts = dom.querySelectorAll("script");
   Array.from(scripts).forEach(script => {
@@ -166,6 +169,8 @@ export default class Actions {
       );
     } else {
       html.classList.add("page");
+      html.setAttribute('paper', 'letter');
+      html.setAttribute('orientation', 'portrait');
 
       let rect = bounds(html);
       const ph = 11 * 96;
