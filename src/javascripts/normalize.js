@@ -4,7 +4,16 @@ export function colorHexToName(color) {
   return color
     .replace('#ff0000', 'rouge')
     .replace('#00ff00', 'vert')
-    .replace('#0000ff', 'bleu');
+    .replace('#0000ff', 'bleu')
+    .replace('#90ee90', 'vert pâle');
+}
+
+// -------------------------------------
+export function borderStyle(style) {
+  if (!style) return style;
+  return style
+    .replace('dashed', 'pointillé')
+    .replace('dotted', 'à pois');
 }
 
 // -------------------------------------
@@ -33,7 +42,7 @@ export function normalizePixels(value) {
   let match = /(\d+\.\d+) pixels/.exec(value);
   if (match) {
     let v = Number.parseFloat(match[1]);
-    v = Math.round(v * 10) / 10;
+    v = Math.round(v);
     value = v + ' pixel' + (v <= 1 ? '' : 's');
   }
   return value;
@@ -81,5 +90,6 @@ export function normalize(value) {
   value = colorToHex(value);
   value = colorHexToName(value);
   value = normalizePixels(value);
+  value = borderStyle(value);
   return value;
 }
