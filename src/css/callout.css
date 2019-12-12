@@ -37,6 +37,7 @@
   cursor: move;
   max-width: 300px;
   text-align: left;
+  overflow-wrap: break-word;
 }
 
 .callouts::before,
@@ -105,4 +106,34 @@
 html.hide-callouts .connectors,
 html.hide-callouts .callouts {
   visibility: hidden;
+}
+
+.callouts .content .hover {
+  position: absolute;
+  top: -25px;
+  right: 0;
+  cursor: default;
+}
+
+.callouts .content .menu {
+  visibility: hidden;
+}
+
+.callouts .hover:hover .menu,
+.callouts .content:hover .menu {
+  visibility: inherit;
+}
+
+.callouts .content .menu .button {
+  width: 20px;
+  height: 20px;
+  margin-right: 2px;
+}
+
+.callouts .content .menu .button:last-child {
+  margin-right: inherit;
+}
+
+.callouts .content .menu .button img {
+  width: 100%;
 }

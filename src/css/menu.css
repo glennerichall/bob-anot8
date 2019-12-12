@@ -10,30 +10,30 @@
   --version-background: rgb(150, 150, 150);
 }
 
-.select-an-element .menu {
+.select-an-element .menu.action-bar {
   pointer-events: none;
 }
 
-.select-an-element .menu:hover,
-.select-an-element .menu *:hover {
+.select-an-element .menu.action-bar:hover,
+.select-an-element .menu.action-bar *:hover {
   box-shadow: initial;
 }
 
-.menu .button:first-of-type {
+.menu.action-bar .button:first-of-type {
   border-top-left-radius: var(--radius);
   border-bottom-left-radius: var(--radius);
 }
 
-.menu .button + .button {
+.menu.action-bar .button + .button {
   border-left: var(--button-border);
 }
 
-.menu .button:last-of-type {
+.menu.action-bar .button:last-of-type {
   border-top-right-radius: var(--radius);
   border-bottom-right-radius: var(--radius);
 }
 
-.menu #calma-logo {
+.menu.action-bar #logo {
   height: var(--logo-height);
   float: right;
   margin-right: var(--menu-spacing);
@@ -47,7 +47,7 @@
   border-radius: initial;
 }
 
-.menu .button img {
+.menu.action-bar .button img {
   width: var(--button-icon-size);
   height: var(--button-icon-size);
   margin-right: var(--menu-spacing);
@@ -67,59 +67,65 @@
 }
 
 .menu .button {
+  cursor: pointer;
+  user-select: none;
+  text-align: center;
   display: inline-block;
+}
+
+.menu.action-bar .button {
   height: var(--button-height);
   border: var(--button-border);
   border-right: none;
   border-left: none;
   background-color: lightgrey;
-  text-align: center;
   font-size: 0.6em;
   line-height: var(--button-height);
-  cursor: pointer;
-  user-select: none;
   font-size: 0.8em;
   padding-left: var(--menu-spacing);
   padding-right: var(--menu-spacing);
 }
 
-.menu .button:last-child {
+.menu.action-bar .button:last-child {
   margin-right: inherit;
 }
 
 .menu {
+  z-index: 1000;
+  user-select: none;
+  font-family: initial;
+}
+
+.menu.action-bar {
   position: fixed;
   right: 10px;
   top: 10px;
-  z-index: 1000;
   background-color: var(--menu-background);
   padding: var(--menu-spacing);
   border: var(--menu-border);
   border-radius: var(--radius);
-  user-select: none;
-  font-family: initial;
   cursor: move;
   box-shadow: 1px 0px grey, 0px 1px black ;
 }
 
-.menu.dragged {
+.menu.action-bar.dragged {
   right: inherit;
 }
 
-.menu .button:hover {
+.menu.action-bar .button:hover {
   background-color: grey;
 }
 
-.menu .button:active {
+.menu.action-bar .button:active {
   background-color: rgb(50, 50, 50);
 }
 
-.menu .button.checked {
+.menu.action-bar .button.checked {
   background-color: rgb(60, 60, 60);
   color: white;
 }
 
-.menu #version {
+.menu.action-bar #version {
   position: absolute;
   top: -10px;
   right: 5px;
@@ -131,6 +137,7 @@
   padding-right: 3px;
   color: white;
 }
+
 @media print {
   .menu {
     display: none;

@@ -17,6 +17,9 @@ var urlHashPlugin = function() {
     },
     get: function(super_fn, key) {
       return super_fn(getKey(key));
+    },
+    remove: function(super_fn, key) {
+      return super_fn(getKey(key));
     }
   };
 };

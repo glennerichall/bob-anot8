@@ -16,7 +16,7 @@ import eyeImg from "../images/eye.svg";
 export function menu(callouts, actions) {
   // add menu bar
   let menu = document.createElement("div");
-  menu.classList.add("menu");
+  menu.classList.add("menu", "action-bar");
   document.body.appendChild(menu);
 
   enableDrag(menu);
@@ -26,7 +26,7 @@ export function menu(callouts, actions) {
 
   // add logo
   let logo = createImage(menu, logo_calma);
-  logo.id = "calma-logo";
+  logo.id = "logo";
   menu.appendChild(logo);
 
   function createControl(text, image, action, create) {
