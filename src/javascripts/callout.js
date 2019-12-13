@@ -12,6 +12,8 @@ import { events, onReady } from "./events.js";
 import addEditor from "./editor";
 import store from "./storage.js";
 import uniqid from 'uniqid';
+import clearImg from '../images/error.svg';
+import pencilImg from '../images/pencil.svg';
 
 let draw;
 onReady(() => {
@@ -35,18 +37,43 @@ onReady(() => {
   //   .size('100%', '100%');
 });
 
+function createCalloutMenu() {
+  const menu = document.createElement('div');
+  menu.classList.add('menu');
+  
+  const hover = document.createElement('div');
+  hover.appendChild(menu);
+  hover.classList.add('hover');
+
+  const button2 = createButton(menu);
+  button2.classList.add('edit');
+  createImage(button2, pencilImg);
+
+  const button1 = createButton(menu);
+  button1.classList.add('delete');
+  createImage(button1, clearImg);
+
+  return hover;
+}
+
 function createElements(node, configs) {
   let content = document.createElement("div");
   let callouts = document.getElementById("callouts");
   content.classList.add("content", configs.type);
-  content.innerText = parseMessage(node, configs.message);
+
+  let text = document.createElement('span');
+  text.innerText = parseMessage(node, configs.message);
+  text.classList.add('text');
+  content.appendChild(text);
   callouts.appendChild(content);
 
   let ending = document.createElement("div");
   ending.classList.add("ending", configs.type);
   callouts.appendChild(ending);
 
-  return { content, ending };
+  const menu = createCalloutMenu();
+  content.appendChild(menu);
+  return { content, ending, menu };
 }
 
 function updateLine(line, a, b) {
@@ -152,7 +179,7 @@ class Callout {
       left = parent.right - rect.width - 10;
     }
 
-    content.innerText = parseMessage(this.node, configs.message);
+    content.querySelector('span.text').innerText = parseMessage(this.node, configs.message);
     bounds(content)
       .setLeft(left)
       .setTop(top);
@@ -187,13 +214,34 @@ class Callout {
     let configs = this.configs;
 
     node.classList.add("annotated");
-    let { content, ending } = createElements(node, configs);
+    let { content, ending, menu } = createElements(node, configs);
     this.content = content;
     this.ending = ending;
+
+    events(menu.querySelector('.delete')).click = ()=> this.remove();
+    events(menu.querySelector('.edit')).click = ()=> this.remove();
 
     addEditor(this);
 
     return true;
+  }
+
+  remove() {
+    if(confirm('Êtes-vous certain de vouloir supprimer cette info-bulle?')) {
+      this.callouts.remove(this);
+      this.content.remove();
+      this.ending.remove();
+      this.arc.remove();
+      this.clearStorage();
+      let dangling = store.get('dangling');
+      for(let i=0;i<dangling.length;i++){
+        if(dangling[i].configs.id == this.configs.id){
+          dangling.splice(i,1);
+          break;
+        }
+      }
+      store.set('dangling', dangling);
+    }
   }
 
   insertInto(dom) {
@@ -214,6 +262,11 @@ class CalloutCollection {
       (res, callout) => res && callout.install(),
       true
     );
+  }
+
+  remove(callout) {
+    const i = this.callouts.indexOf(callout);
+    this.callouts.splice(i,1);
   }
 
   update() {
