@@ -9,11 +9,11 @@ import saveImg from "../images/save.svg";
 import { createImage } from "./images.js";
 import { createButton } from "./buttons.js";
 import { events, onReady } from "./events.js";
-import addEditor from "./editor";
 import store from "./storage.js";
 import uniqid from 'uniqid';
 import clearImg from '../images/error.svg';
 import pencilImg from '../images/pencil.svg';
+import { editor, addEditor } from './editor.js';
 
 let draw;
 onReady(() => {
@@ -40,7 +40,7 @@ onReady(() => {
 function createCalloutMenu() {
   const menu = document.createElement('div');
   menu.classList.add('menu');
-  
+
   const hover = document.createElement('div');
   hover.appendChild(menu);
   hover.classList.add('hover');
@@ -217,9 +217,7 @@ class Callout {
     let { content, ending, menu } = createElements(node, configs);
     this.content = content;
     this.ending = ending;
-
-    events(menu.querySelector('.delete')).click = ()=> this.remove();
-    events(menu.querySelector('.edit')).click = ()=> this.remove();
+    this.menu = menu;
 
     addEditor(this);
 
@@ -227,16 +225,16 @@ class Callout {
   }
 
   remove() {
-    if(confirm('Êtes-vous certain de vouloir supprimer cette info-bulle?')) {
+    if (confirm('Êtes-vous certain de vouloir supprimer cette info-bulle?')) {
       this.callouts.remove(this);
       this.content.remove();
       this.ending.remove();
       this.arc.remove();
       this.clearStorage();
       let dangling = store.get('dangling');
-      for(let i=0;i<dangling.length;i++){
-        if(dangling[i].configs.id == this.configs.id){
-          dangling.splice(i,1);
+      for (let i = 0; i < dangling.length; i++) {
+        if (dangling[i].configs.id == this.configs.id) {
+          dangling.splice(i, 1);
           break;
         }
       }
@@ -266,7 +264,7 @@ class CalloutCollection {
 
   remove(callout) {
     const i = this.callouts.indexOf(callout);
-    this.callouts.splice(i,1);
+    this.callouts.splice(i, 1);
   }
 
   update() {

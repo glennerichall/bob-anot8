@@ -1,156 +1,143 @@
 import { events, onReady } from "./events.js";
 import enableDrag from "./drag.js";
 import { bounds } from "./bounds";
-import anime from "animejs/lib/anime.es.js";
+// import anime from "animejs/lib/anime.es.js";
 import { diff } from "./utils.js";
 import mask from "./mask.js";
 import "../css/editor.css";
 
-export default function addEditor(callout) {
-  const content = callout.content;
-  const ending = callout.ending;
-  const node = callout.node;
-  const duration = 500;
-  const easing = "easeOutExpo";
 
-  let input;
-  let output;
+class Editor {
+  constructor() {
+
+  }
+
+  install() {
+    this.elem = document.createElement('div');
+    this.elem.classList.add('editor');
+    this.elem.onclick = evt=>{
+      evt.stopPropagation();
+    };
+
+    this.elem.innerHTML = `
+      <div class="pane">
+        <div>
+          <label for="id">id</label><input id="id" readonly value="">
+        </div>
+      </div>
+    `
+    document.body.appendChild(this.elem);
+  }
+
+  show(callout) {
+    this.elem.querySelector('.pane').classList.add('show');
+    this.elem.querySelector('#id').value = callout.options.id;
+    mask.show();
+  }
+
+  hide() {
+    this.elem.querySelector('.pane')
+      .classList.remove('show');
+    mask.hide();
+  }
+}
+
+export const editor = new Editor();
+
+onReady(() => {
+  editor.install();
+});
+
+export function addEditor(callout) {
+  const { content, ending, menu, node } = callout;
   let isEditing = false;
 
-  events(content).dblclick = () => {
+  function edit() {
     if (isEditing) return;
     isEditing = true;
 
-    [content, ending, node].forEach(elem => elem.classList.add("editing"));
+    [content, ending, node]
+      .forEach(elem => elem.classList.add("editing"));
 
-    input = document.createElement("textarea");
-    input.classList.add("editor", "input");
+    editor.show(callout);
 
-    output = document.createElement("div");
-    output.classList.add("log", "editor");
+    events(document.body).click.once.defer.to = () => {
+      isEditing = false;
+      [content, ending, node]
+        .forEach(elem => elem.classList.remove("editing"));
+      editor.hide();
+      callout.callouts.update();
+    }
+  }
 
-    callouts.appendChild(input);
-    callouts.appendChild(output);
+  events(menu.querySelector('.delete')).click = () => callout.remove();
+  events(menu.querySelector('.edit')).click = edit;
+  events(content).dblclick = edit;
+  //  () => {
 
-    let rect = bounds(content);
+  // mask.show();
 
-    let bottom = bounds(input)
-      .setLeft(rect.left)
-      .setTop(rect.bottom)
-      .setWidth(rect.width)
-      .keepInViewport().bottom;
+  // events(input).input = () => {
+  //   output.innerText = null;
+  //   try {
+  //     let configs = JSON.parse(input.value);
+  //     let initialConfigs = callout.initialConfigs;
+  //     let d = diff(initialConfigs, configs);
+  //     callout.clearStorage();
+  //     callout.saveState(d);
+  //     callout.update();
+  //     callout.updateArc();
+  //   } catch (e) {
+  //     output.innerText = e.message;
+  //   }
+  // };
+  // };
 
-    let width = bounds(input).width;
+  // events(mask.node).click = () => {
+  //   if (!isEditing) return;
 
-    bounds(output)
-      .setLeft(rect.left)
-      .setTop(bottom)
-      .setWidth(width);
+  //   [node, content, ending].forEach(elem => elem.classList.add("hiding"));
 
-    let resizeListener = () => {
-      let bi = bounds(input).keepInViewport();
-      if (bi.left < bounds(content).left) {
-        bi.left = window.innerWidth - bi.width - 30;
-      } else if (bi.left > bounds(content).left) {
-        bi.left = bounds(content).left;
-      }
-      bounds(output)
-        .setLeft(bi.left)
-        .setTop(bi.bottom + 5)
-        .setWidth(bi.width);
-    };
+  //   mask.hide();
 
-    events(input).resize = resizeListener;
-    events(input).mouseup = resizeListener;
+  //   anime({
+  //     targets: input,
+  //     height: "0px",
+  //     opacity: 0,
+  //     duration,
+  //     complete: () => input.remove(),
+  //     easing
+  //   });
 
-    input.value = JSON.stringify(callout.configs, null, 2);
+  //   anime({
+  //     targets: output,
+  //     height: "0px",
+  //     top: "-=200px",
+  //     duration,
+  //     easing,
+  //     complete: () => {
+  //       [node, content, ending].forEach(elem =>
+  //         elem.classList.remove("hiding")
+  //       );
+  //       output.remove();
+  //     }
+  //   });
 
-    mask.show();
+  //   // anime({
+  //   //   targets: node,
+  //   //   'box-shadow': '0px 0px 0px red',
+  //   //   duration,
+  //   //   complete: () => {
+  //   //     node.style.removeProperty('box-shadow');
+  //   // [node, content, ending].forEach(elem => elem.classList.remove('hiding'));
+  //   //   },
+  //   //   easing
+  //   // });
 
-    anime({
-      targets: input,
-      height: "200px",
-      duration,
-      easing
-    });
 
-    anime({
-      targets: output,
-      height: "200px",
-      top: "+=200px",
-      duration,
-      easing
-    });
-
-    // anime({
-    //   targets: node,
-    //   'box-shadow': '0px 0px 20px red',
-    //   duration,
-    //   easing
-    // });
-
-    events(input).input = () => {
-      output.innerText = null;
-      try {
-        let configs = JSON.parse(input.value);
-        let initialConfigs = callout.initialConfigs;
-        let d = diff(initialConfigs, configs);
-        callout.clearStorage();
-        callout.saveState(d);
-        callout.update();
-        callout.updateArc();
-      } catch (e) {
-        output.innerText = e.message;
-      }
-    };
-  };
-
-  events(mask.node).click = () => {
-    if (!isEditing) return;
-
-    [node, content, ending].forEach(elem => elem.classList.add("hiding"));
-
-    mask.hide();
-
-    anime({
-      targets: input,
-      height: "0px",
-      opacity: 0,
-      duration,
-      complete: () => input.remove(),
-      easing
-    });
-
-    anime({
-      targets: output,
-      height: "0px",
-      top: "-=200px",
-      duration,
-      easing,
-      complete: () => {
-        [node, content, ending].forEach(elem =>
-          elem.classList.remove("hiding")
-        );
-        output.remove();
-      }
-    });
-
-    // anime({
-    //   targets: node,
-    //   'box-shadow': '0px 0px 0px red',
-    //   duration,
-    //   complete: () => {
-    //     node.style.removeProperty('box-shadow');
-    // [node, content, ending].forEach(elem => elem.classList.remove('hiding'));
-    //   },
-    //   easing
-    // });
-
-    [content, ending, node].forEach(elem => elem.classList.remove("editing"));
-
-    isEditing = false;
-    callout.callouts.update();
-  };
+  //   isEditing = false;
+  //   callout.callouts.update();
+  // };
 
   enableDrag(content);
   enableDrag(ending);

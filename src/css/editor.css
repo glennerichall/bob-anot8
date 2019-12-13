@@ -1,4 +1,3 @@
-
 .callouts .editor.input {
   user-select: inherit;
   box-sizing: border-box;
@@ -13,7 +12,7 @@
 
 .editing {
   cursor: inherit;
-  z-index: 1000;
+  /* z-index: 1000; */
 }
 
 .hiding {
@@ -21,19 +20,24 @@
   z-index: 1000;
 }
 
-.annotated.hiding {
+/* .annotated.hiding {
   position: relative;
 }
 
 .annotated.editing {
   position: relative;
   background-color: white;
-}
+} */
 
 .callouts .ending.editing,
 .callouts .content.editing {
   cursor: inherit;
   position: inherit;
+}
+
+.callouts .content.editing {
+  box-shadow: 2px 0px 3px green, -2px 0px 3px green,
+    0px 2px 3px green, 0px -2px 3px green;
 }
 
 .callouts .editor.log {
@@ -48,11 +52,8 @@ html.page:not(.print) {
   width: 12.7in;
   margin-left: auto;
   margin-right: auto;
-  box-shadow: 
-    2px 0px 3px rgb(199, 199, 199), 
-    -2px 0px 3px rgb(199, 199, 199), 
-    0px 2px 3px rgb(199, 199, 199), 
-    0px -2px 3px rgb(199, 199, 199);
+  box-shadow: 2px 0px 3px rgb(199, 199, 199), -2px 0px 3px rgb(199, 199, 199),
+    0px 2px 3px rgb(199, 199, 199), 0px -2px 3px rgb(199, 199, 199);
   border: 1px solid rgb(128, 128, 128);
   margin-top: 10px;
 }
@@ -67,15 +68,55 @@ html.page[paper="letter"][orientation="portrait"]:not(.print):before {
   content: "Letter - Portrait";
 }
 
- @page {
-    size: 8.5in 11in;
-    width: 8.5in;
-    height: 11in;
-    margin: 0;
+@page {
+  size: 8.5in 11in;
+  width: 8.5in;
+  height: 11in;
+  margin: 0;
 }
 
- html.print {
+html.print {
   width: 12.7in; /* Why not 8.5in? */
   box-sizing: border-box;
   margin: 0;
+}
+
+.editor {
+  height: 100%;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  z-index: 1000;
+}
+
+.editor .pane {
+  --width: 500px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: -5px 0px 5px rgb(80, 80, 80);
+  transition: right 0.5s;
+  right: calc(0px - var(--width));
+  width: var(--width);
+  height: 100%;
+  position: absolute;
+  border-left: 1px solid grey;
+  top: 0;
+}
+
+.editor .pane.show {
+  transition: right 0.5s;
+  right: 0;
+}
+
+.editor .pane > div {
+  position: absolute;
+  top: 50%;
+  transform: translate(0,-50%);
+  display: grid;
+  grid-template-columns: max-content max-content;
+  margin-left: 20px;
+}
+
+.editor .pane > div label {
+  margin-right: 10px;
 }

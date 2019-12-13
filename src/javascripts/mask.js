@@ -18,7 +18,7 @@ export default {
     mask.classList.add('visible');
     anime({
       targets: mask,
-      opacity: 0.9,
+      opacity: 0.1,
       duration,
       easing
     });
