@@ -72,6 +72,10 @@ html.print {
   margin: 0;
 }
 
+.print .editor {
+  display: none;
+}
+
 .editor {
   height: 100%;
   position: fixed;
