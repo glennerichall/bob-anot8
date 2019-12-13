@@ -163,6 +163,13 @@ class Callout {
     }
   }
 
+  updateMessage() {
+    let configs = this.configs;
+    let content = this.content;
+    content.querySelector('span.text').innerText =
+      parseMessage(this.node, configs.message);
+  }
+
   updateContent() {
     let configs = this.configs;
     let content = this.content;
@@ -179,7 +186,7 @@ class Callout {
       left = parent.right - rect.width - 10;
     }
 
-    content.querySelector('span.text').innerText = parseMessage(this.node, configs.message);
+
     bounds(content)
       .setLeft(left)
       .setTop(top);
@@ -196,6 +203,7 @@ class Callout {
 
   update() {
     this.updateEnding();
+    this.updateMessage();
     this.updateContent();
     this.updateArc();
     this.updateType();

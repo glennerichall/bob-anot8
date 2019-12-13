@@ -12,22 +12,12 @@
 
 .editing {
   cursor: inherit;
-  /* z-index: 1000; */
 }
 
 .hiding {
   cursor: inherit;
   z-index: 1000;
 }
-
-/* .annotated.hiding {
-  position: relative;
-}
-
-.annotated.editing {
-  position: relative;
-  background-color: white;
-} */
 
 .callouts .ending.editing,
 .callouts .content.editing {
@@ -76,7 +66,8 @@ html.page[paper="letter"][orientation="portrait"]:not(.print):before {
 }
 
 html.print {
-  width: 12.7in; /* Why not 8.5in? */
+  width: 12.7in;
+  /* Why not 8.5in? */
   box-sizing: border-box;
   margin: 0;
 }
@@ -92,7 +83,7 @@ html.print {
 
 .editor .pane {
   --width: 500px;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.95);
   box-shadow: -5px 0px 5px rgb(80, 80, 80);
   transition: right 0.5s;
   right: calc(0px - var(--width));
@@ -108,15 +99,26 @@ html.print {
   right: 0;
 }
 
-.editor .pane > div {
+.editor .pane>form {
   position: absolute;
   top: 50%;
-  transform: translate(0,-50%);
+  transform: translate(0, -50%);
   display: grid;
   grid-template-columns: max-content max-content;
+  row-gap: 10px;
   margin-left: 20px;
 }
 
-.editor .pane > div label {
+.editor .pane>form label {
   margin-right: 10px;
+}
+
+.group-label {
+  grid-column-start: 1;
+  grid-column-end: 3;
+  text-align: center;
+}
+
+.editor textarea {
+  resize: vertical;
 }

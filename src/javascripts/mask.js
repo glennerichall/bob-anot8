@@ -9,7 +9,7 @@ let mask;
 onReady(() => {
   mask = document.createElement('div');
   mask.id = 'mask';
-  mask.classList.add('mask', 'resize-to-body');
+  mask.classList.add('mask');
   document.body.appendChild(mask);
 });
 
@@ -18,7 +18,7 @@ export default {
     mask.classList.add('visible');
     anime({
       targets: mask,
-      opacity: 0.1,
+      opacity: 0.3,
       duration,
       easing
     });

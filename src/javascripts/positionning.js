@@ -102,12 +102,12 @@ function getSnapLocation(target, configs) {
     // TODO calculate for text-alignment
     hdelta.right = target.innerText.width(font, weight);
     hdelta.center = hdelta.right / 2;
-  } else if(hsnap == 'margin-right'){
+  } else if (hsnap == 'margin-right') {
     left = rect.right;
     hdelta.right = css.v('margin-right');
-    hdelta.center = css.v('margin-right')/2;
+    hdelta.center = css.v('margin-right') / 2;
   }
-  
+
   else {
     console.error(`unknown value for 'horizontal-snap': ${hsnap}`);
   }
@@ -131,23 +131,31 @@ function getMargin(target, configs) {
   let x = 0,
     y = 0;
 
-  let mt = configs['margin-top'].trim();
-  let ml = configs['margin-left'].trim();
+  let mt = configs['margin-top'];
+  let ml = configs['margin-left'];
 
   y = Number.parseFloat(mt);
-  if (mt.endsWith('px')) {
-  } else if (mt.endsWith('%')) {
-    y /= 100;
-    y *= rect.height;
+  if (!isNaN(y)) {
+    if (typeof mt == 'number' || mt.endsWith('px') ||  mt.replace(y,'') == '') {
+    } else if (mt.endsWith('%')) {
+      y /= 100;
+      y *= rect.height;
+    } else {
+      console.error(`unknown value for 'margin-top': ${mt}`);
+    }
   } else {
     console.error(`unknown value for 'margin-top': ${mt}`);
   }
 
   x = Number.parseFloat(ml);
-  if (ml.endsWith('px')) {
-  } else if (mt.endsWith('%')) {
-    x /= 100;
-    x *= rect.width;
+  if (!isNaN(x)) {
+    if (typeof ml == 'number' || ml.endsWith('px') || ml.replace(x,'') == '') {
+    } else if (mt.endsWith('%')) {
+      x /= 100;
+      x *= rect.width;
+    } else {
+      console.error(`unknown value for 'margin-left': ${ml}`);
+    }
   } else {
     console.error(`unknown value for 'margin-left': ${ml}`);
   }

@@ -6,7 +6,7 @@
   position: absolute;
   top: 0;
   left: 0;
-  width: 110%;
+  width: 100%;
   pointer-events: none;
 }
 
@@ -113,6 +113,7 @@ html.hide-callouts .callouts {
   top: -25px;
   right: 0;
   cursor: default;
+  z-index: 10;
 }
 
 .callouts .content .menu {
