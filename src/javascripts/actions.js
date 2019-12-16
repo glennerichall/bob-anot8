@@ -11,7 +11,7 @@ import finder from "@medv/finder";
 function clean(dom) {
   dom
     .querySelectorAll(
-      ".callouts,.menu,.dummy,.connectors,#SvgjsSvg1001,#callout-styles,#mask,#glass,#selector"
+      ".callouts,.menu,.dummy,.connectors,#SvgjsSvg1001,#callout-styles,#mask,#glass,#selector,.editor"
     )
     .forEach(elem => elem.remove());
 
@@ -53,6 +53,11 @@ function deepClone(dom) {
 function save(dom, filename) {
   let xml = new XMLSerializer().serializeToString(dom);
   // xml = beautify(xml);
+
+  xml = xml
+    .replace(/&amp;gt;/g,'>')
+    .replace(/&amp;lt;/g,'<')
+    .replace(/&amp;amp;/g,'&');
 
   var file = new File([xml], filename, {
     type: "text/html;charset=utf-8"
