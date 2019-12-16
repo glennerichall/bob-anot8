@@ -280,6 +280,9 @@ class CalloutCollection {
     const contents = document.querySelectorAll(".callouts .content");
     removeOverlaps(contents);
     this.forEach(callout => callout.updateArc());
+    const bottoms = this.callouts.map(callout => bounds(callout.content).bottom);
+    const max = Math.max(...bottoms);
+    bounds(connectors).height = max;
   }
 
   forEach(callback) {
