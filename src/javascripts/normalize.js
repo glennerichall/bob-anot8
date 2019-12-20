@@ -66,8 +66,10 @@ const tagNames = {
   FIGURE: 'Figure',
   FIGCAPTION: 'Légende de figure',
   FORM: 'Formulaire',
+  I: 'Texte différencié',
   IMG: 'Image',
   INPUT: 'Champ de saisie',
+  LI: 'Élément de liste',
   OL: 'Liste ordonnée',
   P: 'Paragraphe',
   SMALL: ' Commentaires',
@@ -75,6 +77,7 @@ const tagNames = {
   SUP: 'Exposant',
   SUB: 'Indice',
   TABLE: 'Tableau de données',
+  TH: 'Entête de tableau',
   TR: 'Ligne de tableau',
   TD: 'Cellule de tableau',
   UL: 'Liste non-ordonnée'

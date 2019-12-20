@@ -281,7 +281,8 @@ class CalloutCollection {
     removeOverlaps(contents);
     this.forEach(callout => callout.updateArc());
     const bottoms = this.callouts.map(callout => bounds(callout.content).bottom);
-    const max = Math.max(...bottoms);
+    let max = Math.max(...bottoms);
+    max = Math.max(bounds(document.body).height, max);
     bounds(connectors).height = max;
   }
 
